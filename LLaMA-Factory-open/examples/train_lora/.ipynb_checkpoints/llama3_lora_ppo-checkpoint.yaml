@@ -1,0 +1,39 @@
+### model
+model_name_or_path: /root/paddlejob/workspace/env_run/rag/LLaMA-Factory/models/llama3-8b/hotpotqa/selector_and_generator/sft_2 # /root/paddlejob/workspace/env_run/rag/models/LLM-Research/Meta-Llama-3-8B-Instruct # /root/paddlejob/workspace/env_run/rag/LLaMA-Factory/saves/llama3-8b/full/sft/checkpoint-4944
+reward_model: saves/llama3-8b/lora/reward
+
+### method
+stage: ppo
+do_train: true
+finetuning_type: lora
+lora_target: all
+
+### dataset
+dataset: hotpotqa_train_ppo_selector_generator_data # train_ppo_generator_data_debug # train_ppo_generator_data # alpaca_en
+template: llama3
+cutoff_len: 4096
+# max_samples: 1000
+overwrite_cache: true
+preprocessing_num_workers: 16
+
+### output
+output_dir: saves/llama3-8b/lora/hotpotqa/selector_and_generator/ppo_24_only_s
+logging_steps: 1
+save_steps: 36
+plot_loss: true
+overwrite_output_dir: true
+
+### train
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-5
+num_train_epochs: 1.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+
+### generate
+max_new_tokens: 512
+top_k: 0
+top_p: 0.9

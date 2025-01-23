@@ -1,0 +1,58 @@
+data
+├── naive_rag
+├── psgs_w100.tsv
+├── train-00000-of-00001.parquet
+├── train_ppo_generator_data.json
+├── train_rm_pair_data.json
+├── train_sft_generator_data.json
+├── train_top_k_docs.jsonl
+├── validation-00000-of-00001.parquet
+├── val_sft_generator_data.json
+├── val_top_k_docs.jsonl
+└── wikipedia.contriever
+evaluator.py [error opening dir]
+get_generator_ppo_data_alpaca.py [error opening dir]
+get_generator_sft_data_alpaca.py [error opening dir]
+get_generator_sft_data.py [error opening dir]
+get_rm_data_alpaca.py [error opening dir]
+get_top_k.py [error opening dir]
+LLaMA-Factory
+├── assets
+├── CITATION.cff
+├── data
+├── docker
+├── evaluation
+├── examples
+├── full_sft_log.txt
+├── LICENSE
+├── lora_sft_log.txt
+├── Makefile
+├── MANIFEST.in
+├── models
+├── pyproject.toml
+├── question_output.txt
+├── README.md
+├── README_zh.md
+├── requirements.txt
+├── run.sh
+├── saves
+├── scripts
+├── setup.py
+├── src
+├── tests
+└── wandb
+models
+├── facebook
+└── LLM-Research
+naive_rag_answer_batch.py [error opening dir]
+naive_rag_answer.py [error opening dir]
+normalize_answers.py [error opening dir]
+normalize_text.py [error opening dir]
+__pycache__
+├── normalize_answers.cpython-38.pyc
+└── normalize_text.cpython-38.pyc
+test_fun.py [error opening dir]
+tree_file.txt [error opening dir]
+vllm_lora_inference.py [error opening dir]
+
+14 directories, 25 files

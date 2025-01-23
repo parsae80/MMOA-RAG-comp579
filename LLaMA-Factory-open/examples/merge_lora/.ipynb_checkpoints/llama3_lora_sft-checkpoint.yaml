@@ -1,0 +1,13 @@
+### Note: DO NOT use quantized model or quantization_bit when merging lora adapters
+
+### model
+model_name_or_path: /root/paddlejob/workspace/env_run/rag/LLaMA-Factory/models/llama3-8b/hotpotqa/selector_and_generator/sft_2
+adapter_name_or_path: /root/paddlejob/workspace/env_run/rag/LLaMA-Factory/saves/llama3-8b/lora/hotpotqa/selector_and_generator/ppo_23/checkpoint-216 # saves/llama3-8b/lora/sft
+template: llama3
+finetuning_type: lora
+
+### export
+export_dir: models/llama3-8b/hotpotqa/selector_and_generator/ppo_23_06
+export_size: 2
+export_device: cpu
+export_legacy_format: false
