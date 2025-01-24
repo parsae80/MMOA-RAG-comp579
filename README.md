@@ -36,6 +36,11 @@ Run the following script to get the MAPPO training data for each dataset:
    python get_ppo_data_alpaca.py
    ```
 
+**We develop the code of MAPPO to joint optimizing multiple modules in RAG system, and the core code can be seen at:**
+   ```bash
+   ./LLaMA-Factory/src/llamafactory/train/ppo
+   ```
+
 ## Warm Start for RAG System
 To warm start multiple modules in the RAG system using SFT, execute:
    ```bash
