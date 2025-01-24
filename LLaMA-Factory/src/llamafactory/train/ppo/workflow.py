@@ -22,22 +22,7 @@ from ...extras.ploting import plot_loss
 from ...model import load_model, load_tokenizer
 from ..callbacks import fix_valuehead_checkpoint
 from ..trainer_utils import create_ref_model, create_reward_model
-from .trainer import CustomPPOTrainer
-from .trainer_selector_and_generator import CustomPPOTrainer_SG
-from .trainer_selector import CustomPPOTrainer_S
-from .trainer_generator import CustomPPOTrainer_G
-from .trainer_generator_woselector import CustomPPOTrainer_G_wsS
-from .trainer_selector_and_generator_5s import CustomPPOTrainer_SG_5S
 from .trainer_qr_s_g import CustomPPOTrainer_QSG
-
-# ablation
-from .trainer_ablation_qr_s import CustomPPOTrainer_Ablation_QR_S
-from .trainer_ablation_qr_g import CustomPPOTrainer_Ablation_QR_G
-from .trainer_ablation_s_g import CustomPPOTrainer_Ablation_S_G
-
-from .trainer_ablation_g import CustomPPOTrainer_Ablation_G
-from .trainer_ablation_s import CustomPPOTrainer_Ablation_S
-from .trainer_ablation_qr import CustomPPOTrainer_Ablation_QR
 
 
 if TYPE_CHECKING:
