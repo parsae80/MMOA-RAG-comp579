@@ -26,7 +26,9 @@ To deploy the retrieval model, execute the following:
 To generate the training data for SFT and MAPPO processes, follow these steps:
 
 Run the following script to obtain the SFT training data:
-`python qr_s_g_sft_data_alpaca.py`
+```bash
+python qr_s_g_sft_data_alpaca.py
+
 Run the following script to get the MAPPO training data for each dataset:
 `python get_ppo_data_alpaca.py`
 
@@ -44,6 +46,6 @@ Evaluate the performance of the RAG system by executing:
 
 ## Others
 Create necessary directories: 
-1. ./data for storing data sets. For example, /data/ambigqa is used to save the AmbigQA dataset.
+1. `./data` for storing data sets. For example, `./data/ambigqa` is used to save the AmbigQA dataset.
 
-2. ./models for saving checkpoints of the retrieval model and LLMs.
+2. `./models` for saving checkpoints of the retrieval model and LLMs.
