@@ -75,22 +75,18 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 def remove_punctuation(text):
-    # 定义要去除的标点符号
     punctuation = set('.,!?;:"()[]{}-')
-    # 过滤掉标点符号
+
     return ''.join(char for char in text if char not in punctuation)
 
 def clean_and_split(text):
-    # 去除标点符号
     cleaned_text = remove_punctuation(text).lower()
-    # 以空格为分隔符分割单词
     words = cleaned_text.split()
+
     return words
 
 def calculate_match_ratio(answer, document):
-    # 常见词汇列表，包括介词、冠词、代词、连词、助动词、否定词和疑问词
     common_words = {
-        # 常见介词、冠词、代词、连词、助动词、否定词、疑问词
         "in", "on", "at", "to", "for", "with", "by", "from", "about",
         "a", "an", "the",
         "it", "they", "we", "you", "he", "she", "i", "me", "my", "mine", "ours", "us", "your", "yours", "his", "hers", "their", "theirs",
@@ -98,25 +94,19 @@ def calculate_match_ratio(answer, document):
         "is", "are", "was", "were", "do", "does", "did", "have", "has", "had", "having", "be", "been", "being",
         "not", "no", "nor", "none",
         "what", "where", "when", "who", "why", "how", "which", "whom", "whose",
-        # 常用标点符号
         ".", ",", "!", "?", ";", ":", "-", "(", ")", "[", "]", "{", "}", "\"", "'", "...", "--", "/", "\\", "|", "<", ">", "=", "+", "*", "&", "^", "%", "$", "#", "@", "~", "`",
-        # 其他常见停用词
         "of", "that", "this", "these", "those", "such", "there", "here", "all", "any", "both", "each", "few", "more", "some", "most", "other", "another", "every", "either", "neither"
     }
-    # 清理并分割answer和document
     answer_words = [word for word in clean_and_split(answer) if word not in common_words]
     document_words = remove_punctuation(document).lower()
-    # 计算answer中有多少单词出现在document中
     match_count = sum(1 for word in answer_words if word in document_words)
-    # 计算比例
     if len(answer_words) == 0:
-        return 0.0  # 避免除以0
+        return 0.0
     match_ratio = match_count / (2*len(answer_words))
 
     return match_ratio
 
 def sort_and_classify_documents(answer, documents):
-    # 计算每个文档的匹配比例
     document_ratios = [(document, calculate_match_ratio(answer, document)) for document in documents]
 
     return_binary_list = [0] * len(document_ratios)
@@ -133,19 +123,10 @@ def get_selector_metrics(predict_answer, golden_answer, candidate_documents):
     predict_binary_list = sort_and_classify_documents(predict_answer, candidate_documents)
     golden_binary_list = sort_and_classify_documents(golden_answer, candidate_documents)
 
-    # 计算各项指标
     accuracy = accuracy_score(golden_binary_list, predict_binary_list)
     precision = precision_score(golden_binary_list, predict_binary_list)
     recall = recall_score(golden_binary_list, predict_binary_list)
     f1 = f1_score(golden_binary_list, predict_binary_list)
-
-    # # 打印结果
-    # print('predict_binary_list:', predict_binary_list, '  golden_binary_list:', golden_binary_list)
-    # print(f"Accuracy: {accuracy}")
-    # print(f"Precision: {precision}")
-    # print(f"Recall: {recall}")
-    # print(f"F1 Score: {f1}")
-    # print('\n')
 
     return f1
 
@@ -162,7 +143,7 @@ def get_embeddings(sentences, retriever_model, retriever_tokenizer):
     if torch.cuda.is_available():
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
         sentences_input = sentences_input.to(device)  # device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
-        with torch.no_grad():  # 如果不需要梯度，使用torch.no_grad()可以减少内存消耗  
+        with torch.no_grad():  
             sentences_output = retriever_model(**sentences_input)
 
         # Compute token embeddings
@@ -183,19 +164,16 @@ def get_embeddings(sentences, retriever_model, retriever_tokenizer):
 
 def extract_questions_and_docs(response):
     """
-    从HTTP响应中提取问题和对应的文档列表。
+    The question and the corresponding document list are extracted from the HTTP response.
 
-    参数：
-    - response: requests.Response 对象，HTTP请求的响应。
+    parameters:
+    - response: requests.Response
 
-    返回：
-    - 提取的信息列表，每个元素是一个字典，包含key 'question' 和value 'top_k_docs'。
+    return:
+    - List of extracted information, where each element is a dictionary containing key 'question' and value 'top_k_docs'.
     """
-
-    # 解析 JSON 响应
     results = response.json()
 
-    # 提取信息
     extracted_info_dict = {}
     for result in results:
         question = result.get('question')
@@ -210,12 +188,9 @@ class AllowedTokensLogitsProcessor(LogitsProcessor):
         self.allowed_token_ids = set(allowed_token_ids)
     
     def __call__(self, input_ids, scores):
-        # 获取scores张量所在的设备
         device = scores.device
-        # 在相同设备上创建mask张量
         mask = torch.full(scores.shape, float('-inf'), device=device)
         mask[:, list(self.allowed_token_ids)] = 0
-        # 确保scores和mask在同一设备上进行计算
         scores = scores + mask
         
         return scores
@@ -354,18 +329,17 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
 
     def extract_question(self, text):
         """
-        从给定的文本中提取问题部分。
-        
-        参数:
-        text (str): 包含问题和其他内容的字符串。
-        
-        返回:
-        str: 提取出的问题字符串，如果没有找到则返回空字符串。
+        Extract the question part from the given text.
+
+        Parameters:
+        text (str) -A string containing the question and other content
+
+        Returns:
+        str -Extracts the question string, or returns an empty string if not found
         """
-        # 使用非贪婪模式 .*? 来匹配 "Question is:" 和 "Document 0" 之间的内容
         match = re.search(r'Question is:(.*?)Document0', text, re.DOTALL)
         if match:
-            return match.group(1).strip()  # 使用 strip() 去掉首尾可能的空格
+            return match.group(1).strip()
         else:
             print("warning: cannot find the question.")
             return ""
@@ -382,29 +356,23 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
         str: 提取出的 Document 内容，如果没有找到则返回空字符串。
         """
         if doc_number < 9:
-            # 对于 Document 0 到 8，使用常规的模式匹配
             pattern = rf'Document{doc_number}:(.*?)(?=Document{doc_number + 1}:|$)'
         else:
-            # 对于 Document 9，使用 \n\nNow 作为结束标记
             pattern = rf'Document{doc_number}:(.*?)(?=\n\nNow)'
         
         match = re.search(pattern, text, re.DOTALL)
         
         if match:
-            return match.group(1).strip()  # 去掉首尾可能的空格
+            return match.group(1).strip() 
         else:
             print(f"warning: cannot find Document {doc_number}.")
             return ""
 
     def convert_to_int_list(self, input_string):
-        # 创建一个空列表来存储结果
         digits_list = []
         
-        # 遍历输入字符串中的每个字符
         for char in input_string:
-            # 检查字符是否为数字
             if char.isdigit():
-                # 将字符转换为整数并添加到列表中
                 digits_list.append(int(char))
         
         return digits_list
@@ -413,28 +381,21 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
         input_list = input_string.split(',')
         input_list = [item.replace("Document", "") for item in input_list]
 
-        # 创建一个空列表来存储结果
         digits_list = []
         
-        # 遍历输入字符串中的每个字符
         candidate_list = [str(i) for i in range(K_candidate)]
         for char in input_list:
-            # 检查字符是否为数字
             if char in candidate_list:
-                # 将字符转换为整数并添加到列表中
                 digits_list.append(int(char))
 
-        # K_candidate之后的不要
         digits_list = digits_list[: K_candidate]
 
-        # 去重复
         my_list = digits_list
         unique_list = []
         for item in my_list:
             if item not in unique_list:
                 unique_list.append(item)
 
-        # 消除不在范围内的
         return_list = []
         for item in unique_list:
             if item >= 0 and item < K_candidate:
@@ -445,44 +406,33 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
     def get_selector_duplicate_reward(self, input_string, K_candidate):
         duplicate_reward = 0.0
 
-        # 如果回答为空 直接返回0.0
         if input_string == '':
             return duplicate_reward
 
-        # 定义正则表达式模式，匹配以"Document"开头，后面跟一个或多个数字的格式
         pattern = r"^(Document\d+,)*(Document\d+)$"
         
-        # 检查输入字符串是否匹配模式
         if not re.match(pattern, input_string):
             duplicate_reward += -0.5
         
-        # 将字符串分割成数字列表
         input_list = input_string.split(',')
         input_list = [item.replace("Document", "") for item in input_list]
         numbers = input_list
 
-        # 检查是否有非法数字
         candidate_list = [str(i) for i in range(K_candidate)]
         for number in numbers:
             if number not in candidate_list:
                 duplicate_reward += -0.5
-        # 检查是否有重复数字
         if len(numbers) != len(set(numbers)):
             duplicate_reward += -0.5
         
         return -1.0 if duplicate_reward < 0 else 0.0
 
     def get_answer_dict(self, answers_path):
-        
-        # loading answers file
         print('loading pairwise data to get golden_answer dict.')
         start_time = time.time()
-        # 创建一个空列表来存放字典
         answers_pair = []
-        # 打开文件以读取
         with open(answers_path, 'r') as file:
             for line in file:
-                # json.loads() 函数将每行的json字符串转化为字典
                 answers_pair.append(json.loads(line))
         end_time = time.time()
         print('time consuming: {} seconds'.format(end_time - start_time))
@@ -566,11 +516,11 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
         rewards = []
         for i in range(len(predict_answers)):
             K_candidate_num = len(mini_batch_candidate_docs[i])
-            score = self.get_selector_duplicate_reward(mini_batch_selector_answers_text[i], K_candidate_num)  # 0.0 or -0.5 (惩罚输出重复内容和非doc id的内容)
+            score = self.get_selector_duplicate_reward(mini_batch_selector_answers_text[i], K_candidate_num)  # 0.0 or -0.5 (Penalize output duplicate content and content that is not doc id)
             if golden_answers[i] == 'yes' or golden_answers[i] == 'no':
-                score += get_selector_metrics(predict_answers[i], mini_batch_input_questions[i], mini_batch_candidate_docs[i]) # yes or no的问题
+                score += get_selector_metrics(predict_answers[i], mini_batch_input_questions[i], mini_batch_candidate_docs[i]) # yes or no
             else:
-                score += get_selector_metrics(predict_answers[i], golden_answers[i], mini_batch_candidate_docs[i]) # 非 yes or no
+                score += get_selector_metrics(predict_answers[i], golden_answers[i], mini_batch_candidate_docs[i]) # not yes or no
 
             rewards.append(score)
 
@@ -580,7 +530,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
         rewards = []
         for i in range(len(mini_batch_selector_answers_text)):
             K_candidate_num = len(mini_batch_candidate_docs[i])
-            score = self.get_selector_duplicate_reward(mini_batch_selector_answers_text[i], K_candidate_num)  # 0.0 or -0.5 (惩罚输出重复内容和非doc id的内容)
+            score = self.get_selector_duplicate_reward(mini_batch_selector_answers_text[i], K_candidate_num)  # 0.0 or -0.5 (Penalize output duplicate content and content that is not doc id)
             rewards.append(score)
         
         return torch.tensor(rewards).view(-1, 1)
@@ -588,7 +538,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
     def get_qr_punish(self, predict_answers, mini_batch_subquestions):
         rewards = []
         for i in range(len(predict_answers)):
-            if len(mini_batch_subquestions[i]) > 4:  # subq个数惩罚
+            if len(mini_batch_subquestions[i]) > 4:  # penalty for subq number
                 score = -0.5
             else:
                 score = 0.0
@@ -704,15 +654,12 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
         # print('messages_list', messages_list)
         # print('input_ids_list', input_ids_list)
 
-        # 找出最长序列的长度
         max_length = max(input_ids.size(0) for input_ids in input_ids_list)
-        # 手动左填充
         input_ids_padded = torch.stack([
             torch.cat([input_ids.new_full((max_length - input_ids.size(0),), self.tokenizer.eos_token_id), input_ids], dim=0)
             for input_ids in input_ids_list
         ], dim=0)
 
-        # 创建 attention mask
         attention_masks = torch.stack([
             torch.cat([torch.zeros(max_length - input_ids.size(0), dtype=torch.long), torch.ones(input_ids.size(0), dtype=torch.long)], dim=0)
             for input_ids in input_ids_list
@@ -774,25 +721,21 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
         reward_meter = AverageMeter()
         self.callback_handler.on_train_begin(self.args, self.state, self.control)
 
-        # 构造{question: golden_answer}的dict
         answers_path = '/root/paddlejob/workspace/env_run/rag/data/ambigqa/train_top_k_docs.jsonl'
         questions_golden_answers_dict = self.get_answer_dict(answers_path)
 
-        # selector: 定义允许的token
-        # allowed_tokens=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', ',', 'Document']
+        # selector: allowed_tokens
         allowed_tokens=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ',', 'Document']
         allowed_token_ids = self.tokenizer.convert_tokens_to_ids(allowed_tokens)
         eos_token_id = self.tokenizer.eos_token_id
         allowed_token_ids.append(eos_token_id)
-        # selector: 创建LogitsProcessor
+        # selector: create LogitsProcessor
         logits_processor = LogitsProcessorList([
             AllowedTokensLogitsProcessor(allowed_token_ids)
         ])
 
-        # 打开文件进行追加写入
         kl_ctl_results_path = self.args.output_dir + '/kl_ctl.txt'
         with open(kl_ctl_results_path, 'a') as file:
-            # 将列表转换为字符串并用空格连接，写入一行
             file.write('self.config.init_kl_coef: {}, self.config.target: {}, self.config.horizon: {}'.format(self.config.init_kl_coef, self.config.target, self.config.horizon) + '\n\n\n')
 
         print('self.batch_size_1: {}, self.config.mini_batch_size: {}'.format(self.batch_size_1, self.config.mini_batch_size))
@@ -802,15 +745,8 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
 
         for step in tqdm(range(max_steps), disable=not self.is_local_process_zero()):
 
-            # if step < 10:
-            #     self.config.ppo_epochs = 4
-            # else:
-            #     self.config.ppo_epochs = 2
-
-            # 打开文件进行追加写入
             kl_ctl_results_path = self.args.output_dir + '/kl_ctl.txt'
             with open(kl_ctl_results_path, 'a') as file:
-                # 将列表转换为字符串并用空格连接，写入一行
                 file.write('step: {}, '.format(step) + 'self.kl_ctl.value: {}'.format(self.kl_ctl.value) + '\n')
 
             try:
@@ -830,7 +766,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
             CRITIC_STEP = 100
             
             if step < CRITIC_STEP:
-                self.config.batch_size = self.batch_size_3  # 同时优化3个模块
+                self.config.batch_size = self.batch_size_3  # optimize 3 modules
             else:
                 num = 0
                 if step % QR_STEP == 0:
@@ -839,9 +775,9 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                     num += 1
                 if step % GENERATOR_STEP == 0:
                     num += 1
-                self.config.batch_size = num * self.batch_size_1  # 同时优化num个模块
+                self.config.batch_size = num * self.batch_size_1  # optimize num modules
 
-            torch.cuda.empty_cache()  # 清理optimization过程未使用的显存
+            torch.cuda.empty_cache() 
 
             # for idx in range(0, self.config.batch_size, self.config.mini_batch_size):
             for idx in range(0, self.batch_size_1, self.config.mini_batch_size):
@@ -889,11 +825,11 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                     qr_answer_list = [q.strip() for q in qr_answer_list]
 
                     if len(qr_answer_list) > 4 and len(qr_answer_list) <= 8:  # 5 6 7 8
-                        qr_answer_list = qr_answer_list[:4]  # 改写后的subquestion不超过4个
-                        print('改写subquestion超过了4 (5 6 7 8)个，只取前四个。')
+                        qr_answer_list = qr_answer_list[:4]  # the number of subquestion can not be more than 4
+                        print('Rewriting Subquestions exceeds 4 (5, 6, 7, 8) and only takes the first four.')
                     elif len(qr_answer_list) > 8:
                         qr_answer_list = [mini_batch_input_questions[q_id]]
-                        print('改写subquestion超过了8个，存在问题，替换为原始question。')
+                        print('There are more than 8 rewriting Subquestions, there is a problem, replace with the original question.')
 
                     mini_batch_subquestions.append(qr_answer_list)
                     init_q = mini_batch_input_questions[q_id]
@@ -921,7 +857,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                     for subq in subq_list:
                         questions.append(subq)
                 
-                current_device = torch.cuda.current_device()  # 获取当前正在使用的 GPU 编号
+                current_device = torch.cuda.current_device()  # getting gpu number
                 # print(current_device)
                 url = 'http://10.215.192.149:800{}/search'.format(current_device)
                 data = {
@@ -933,12 +869,10 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
 
                 shuffled_all_top_docs = []
                 for i in range(len(mini_batch_subquestions)):
-                    subq_list = mini_batch_subquestions[i][:4]  # 改写后的query不超过4个
-                    num_docs_per_subq_dict = {'1': [10], '2': [5,5], '3': [4,3,3], '4': [3,3,2,2], '5': [2,2,2,2,2]}  # 分别为10 10 12 12 10个候选文档
+                    subq_list = mini_batch_subquestions[i][:4]  # number of subquestion not exceed 4
+                    num_docs_per_subq_dict = {'1': [10], '2': [5,5], '3': [4,3,3], '4': [3,3,2,2], '5': [2,2,2,2,2]}
                     num_docs_per_subq = num_docs_per_subq_dict[str(len(subq_list))]
-                    # temp_doc_list = all_top_docs[:4]  # 原问题的前4 doc + subquestion的doc
-                    temp_doc_list = []  # 只有subquestion的doc
-                    # for subq in subq_list:
+                    temp_doc_list = [] 
                     for subq_id in range(len(subq_list)):
                         subq = subq_list[subq_id]
                         temp_doc_list = temp_doc_list + qr_all_subquestions_docs_dict[subq][: num_docs_per_subq[subq_id]]
@@ -955,10 +889,8 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                     selector_messages = self.get_selector_messages(question, top_docs)
                     mini_batch_messages_list.append(selector_messages)
 
-                    # 打开文件进行追加写入
                     question_results_path = self.args.output_dir + '/context_question.txt'
                     with open(question_results_path, 'a') as file:
-                        # 将列表转换为字符串并用空格连接，写入一行
                         file.write(question + '\n')
 
                 ## encode text to input_ids
@@ -975,10 +907,8 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                     K_candidate_num = len(mini_batch_input_candidate_docs[temp_i])
                     number_answer = self.extract_digits(answer, K_candidate_num)
 
-                    # 打开文件进行追加写入
                     selector_results_path = self.args.output_dir + '/context_selector.txt'
                     with open(selector_results_path, 'a') as file:
-                        # 将列表转换为字符串并用空格连接，写入一行
                         # line = ' '.join(map(str, number_answer))
                         file.write(answer + '\n')
 
@@ -1035,14 +965,11 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                     predict_answer = predict_answer.replace("*", "")
                     predict_answers.append(predict_answer)
                 
-                # 保存预测答案和标准答案
                 for temp_id in range(len(predict_answers)):
                     pred_ans = predict_answers[temp_id]
                     gold_ans = golden_answers[temp_id]
-                    # 打开文件进行追加写入
                     generator_results_path = self.args.output_dir + '/context_generator.txt'
                     with open(generator_results_path, 'a') as file:
-                        # 将列表转换为字符串并用空格连接，写入一行
                         file.write(pred_ans + '\t||\t' + gold_ans + '\n')
 
                 mini_batch_rewards = self.get_rewards(predict_answers, golden_answers, reward_metric_name='f1')
@@ -1050,9 +977,9 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                 
                 mini_batch_repeat_punish = self.get_selector_repeat_punish(mini_batch_selector_answers_text, mini_batch_input_candidate_docs)
                 mini_batch_qr_punish = self.get_qr_punish(predict_answers, mini_batch_subquestions)
-                mini_batch_generator_punish = self.get_generator_punish(predict_answers)  # 过长输出的punish
+                mini_batch_generator_punish = self.get_generator_punish(predict_answers)  # penalty for generated answer which are too long
 
-                # 不同模块的rewards
+                # rewards of different modules
                 if step < CRITIC_STEP:
                     rewards.extend(mini_batch_rewards+mini_batch_qr_punish)  # reward for qr
                     rewards.extend(mini_batch_rewards+mini_batch_repeat_punish)  # reward for selector
@@ -1068,20 +995,15 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                 reward_qr = (mini_batch_rewards+mini_batch_qr_punish).mean().item()
                 reward_selctor_aindoc = mini_batch_rewards_selctor_aindoc.mean().item()
                 reward_generator_final = mini_batch_rewards.mean().item()
-                # 打开文件进行追加写入
+
                 reward_qr_path = self.args.output_dir+'/reward_qr.txt'
                 with open(reward_qr_path, 'a') as file:
-                    # 将列表转换为字符串并用空格连接，写入一行
                     file.write(str(reward_qr) + '\n')
-                # 打开文件进行追加写入
                 reward_selctor_aindoc_path = self.args.output_dir+'/reward_selctor_aindoc.txt'
                 with open(reward_selctor_aindoc_path, 'a') as file:
-                    # 将列表转换为字符串并用空格连接，写入一行
                     file.write(str(reward_selctor_aindoc) + '\n')
-                # 打开文件进行追加写入
                 reward_generator_final_path = self.args.output_dir+'/reward_generator_final.txt'
                 with open(reward_generator_final_path, 'a') as file:
-                    # 将列表转换为字符串并用空格连接，写入一行
                     file.write(str(reward_generator_final) + '\n')
 
             # Run PPO step
@@ -1091,7 +1013,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
             stats = self.step(queries, responses, rewards)
             # print('********end step********')
 
-            # 保证self.kl_ctl.value不小于某个值Min_beta
+            # ensure the minimum valule of \beta is 0.05
             Min_beta = 0.05
             if self.kl_ctl.value < Min_beta:
                 self.kl_ctl.value = Min_beta
