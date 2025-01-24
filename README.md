@@ -19,7 +19,9 @@ To deploy the retrieval model, execute the following:
 
 1. Ensure the code in `./flask_server.py` is properly configured.
 2. Start the retrieval model API by running:
-   `bash run_server.sh`
+   ```bash
+   bash run_server.sh
+   ```
 
 ## Getting the SFT and MAPPO Training Data
 To generate the training data for SFT and MAPPO processes, follow these steps:
