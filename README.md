@@ -27,7 +27,9 @@ To deploy the retrieval model, execute the following:
 To generate the training data for SFT and MAPPO processes, follow these steps:
 
 Run the following script to obtain the SFT training data:
-   `python qr_s_g_sft_data_alpaca.py`
+   ```bash
+   python qr_s_g_sft_data_alpaca.py
+   ```
 
 Run the following script to get the MAPPO training data for each dataset:
    `python get_ppo_data_alpaca.py`
