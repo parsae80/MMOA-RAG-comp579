@@ -36,7 +36,7 @@ Run the following script to get the MAPPO training data for each dataset:
    python get_ppo_data_alpaca.py
    ```
 
-**We developed the code of MAPPO to joint optimizing multiple modules in RAG system based on [LLaMA-Factory] (https://github.com/hiyouga/LLaMA-Factory), and the core code can be seen at:**
+**We developed the code of MAPPO to joint optimizing multiple modules in RAG system based on [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory), and the core code can be seen at:**
    ```bash
    ./LLaMA-Factory/src/llamafactory/train/ppo/trainer_qr_s_g.py
    ```
