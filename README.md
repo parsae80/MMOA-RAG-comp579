@@ -19,19 +19,16 @@ To deploy the retrieval model, execute the following:
 
 1. Ensure the code in `./flask_server.py` is properly configured.
 2. Start the retrieval model API by running:
-   ```bash
-   bash run_server.sh
+   ```bash run_server.sh```
 
 ## Getting the SFT and MAPPO Training Data
 To generate the training data for SFT and MAPPO processes, follow these steps:
 
 Run the following script to obtain the SFT training data:
-   ```bash
-   python qr_s_g_sft_data_alpaca.py
+   ```python qr_s_g_sft_data_alpaca.py```
 
 Run the following script to get the MAPPO training data for each dataset:
-   ```bash
-   python get_ppo_data_alpaca.py
+   ```python get_ppo_data_alpaca.py```
 
 ## Warm Start for RAG System
 To warm start multiple modules in the RAG system using SFT, execute:
