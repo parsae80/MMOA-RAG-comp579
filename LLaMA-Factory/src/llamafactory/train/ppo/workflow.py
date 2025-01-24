@@ -53,7 +53,7 @@ def run_ppo(
     reward_model = create_reward_model(model, model_args, finetuning_args)
 
     # Initialize our Trainer
-    ppo_trainer: "CustomPPOTrainer_Ablation_QR_G" = CustomPPOTrainer_Ablation_QR_G(
+    ppo_trainer: "CustomPPOTrainer_QSG" = CustomPPOTrainer_QSG(
         model_args=model_args,
         training_args=training_args,
         finetuning_args=finetuning_args,
