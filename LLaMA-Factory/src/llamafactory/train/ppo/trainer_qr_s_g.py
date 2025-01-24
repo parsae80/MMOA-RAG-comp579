@@ -321,7 +321,6 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
             self.accelerator.clip_grad_norm_ = MethodType(clip_grad_norm_old_version, self.accelerator)
             self.add_callback(BAdamCallback)
 
-        # 更新n个模块 batch_size需要扩大n倍
         self.batch_size_1 = self.config.batch_size
         self.batch_size_2 = 2 * self.batch_size_1
         self.batch_size_3 = 3 * self.batch_size_1
@@ -346,14 +345,14 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
 
     def extract_document(self, text, doc_number):
         """
-        提取指定编号的 Document 的内容。
-        
-        参数:
-        text (str): 包含多个 Document 的字符串。
-        doc_number (int): 要提取的 Document 编号。
-        
-        返回:
-        str: 提取出的 Document 内容，如果没有找到则返回空字符串。
+        Extract the contents of a Document with the specified number.
+
+        Parameters:
+        text (str) -A string containing more than one Document
+        doc_number (int): The number of the Document to extract
+
+        Returns:
+        str: The contents of the extracted Document, or an empty string if not found
         """
         if doc_number < 9:
             pattern = rf'Document{doc_number}:(.*?)(?=Document{doc_number + 1}:|$)'
@@ -451,7 +450,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
 
     def get_rewards(self, predict_answers, golden_answers, reward_metric_name='f1'):  # torch.rand((self.config.mini_batch_size, 1))
 
-        assert len(predict_answers) == len(golden_answers), "预测答案和标准答案的长度不相等"
+        assert len(predict_answers) == len(golden_answers), "The predicted and standard answers are not of equal length"
 
         rewards = []
         for i in range(len(predict_answers)):
@@ -511,7 +510,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
 
     def get_selector_rewards(self, predict_answers, golden_answers, mini_batch_candidate_docs, mini_batch_input_questions, mini_batch_selector_answers_text):
 
-        assert len(predict_answers) == len(golden_answers), "预测答案和标准答案的长度不相等"
+        assert len(predict_answers) == len(golden_answers), "The predicted and standard answers are not of equal length"
 
         rewards = []
         for i in range(len(predict_answers)):
@@ -649,7 +648,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
             input_ids_list.append(input_ids)
 
         # Pad input_ids to the same length and create a single tensor
-        input_ids_list = [input_ids.squeeze(0) for input_ids in input_ids_list]  # 向量需要是一维的
+        input_ids_list = [input_ids.squeeze(0) for input_ids in input_ids_list]
 
         # print('messages_list', messages_list)
         # print('input_ids_list', input_ids_list)
@@ -834,10 +833,8 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                     mini_batch_subquestions.append(qr_answer_list)
                     init_q = mini_batch_input_questions[q_id]
 
-                    # 打开文件进行追加写入
                     qr_results_path = self.args.output_dir + '/context_query_rewriting.txt'
                     with open(qr_results_path, 'a') as file:
-                        # 将列表转换为字符串并用空格连接，写入一行
                         file.write(init_q + '\n')
                         for subq in qr_answer_list:
                             file.write(subq + '\n')
