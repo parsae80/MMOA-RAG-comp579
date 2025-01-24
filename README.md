@@ -19,16 +19,16 @@ To deploy the retrieval model, execute the following:
 
 1. Ensure the code in `./flask_server.py` is properly configured.
 2. Start the retrieval model API by running:
-   ```bash run_server.sh```
+   `bash run_server.sh`
 
 ## Getting the SFT and MAPPO Training Data
 To generate the training data for SFT and MAPPO processes, follow these steps:
 
 Run the following script to obtain the SFT training data:
-   ```python qr_s_g_sft_data_alpaca.py```
+   `python qr_s_g_sft_data_alpaca.py`
 
 Run the following script to get the MAPPO training data for each dataset:
-   ```python get_ppo_data_alpaca.py```
+   `python get_ppo_data_alpaca.py`
 
 ## Warm Start for RAG System
 To warm start multiple modules in the RAG system using SFT, execute:
@@ -37,13 +37,11 @@ To warm start multiple modules in the RAG system using SFT, execute:
 
 ## Multi-Agent Optimization for RAG System
 To perform joint learning of the multiple modules in the RAG system using MAPPO, run:
-   ```bash
-   bash LLaMA-Factory/run_mappo.sh
+   `bash LLaMA-Factory/run_mappo.sh`
 
 ## Evaluation
 Evaluate the performance of the RAG system by executing:
-   ```bash
-   CUDA_VISIBLE_DEVICES=0 python evaluate_qr_s_g.py
+   `CUDA_VISIBLE_DEVICES=0 python evaluate_qr_s_g.py`
 
 ## Others
 Create necessary directories: 
