@@ -32,8 +32,7 @@ Run the following script to get the MAPPO training data for each dataset:
 
 ## Warm Start for RAG System
 To warm start multiple modules in the RAG system using SFT, execute:
-   ```bash
-   bash LLaMA-Factory/run_sft.sh
+   `bash LLaMA-Factory/run_sft.sh`
 
 ## Multi-Agent Optimization for RAG System
 To perform joint learning of the multiple modules in the RAG system using MAPPO, run:
