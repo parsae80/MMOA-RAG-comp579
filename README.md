@@ -4,12 +4,19 @@ This repository contains the code for MMOA-RAG, a system for multi-modules optim
 
 ## Table of Contents
 
+- [Computational Resource Requirements](#computational-resource-requirements)
 - [Deploying the Retrieval Model](#deploying-the-retrieval-model)
 - [Getting the SFT and MAPPO Training Data](#getting-the-sft-and-mappo-training-data)
 - [Warm Start for RAG System](#warm-start-for-rag-system)
 - [Multi-Agent Optimization for RAG System](#multi-agent-optimization-for-rag-system)
 - [Evaluation](#evaluation)
 - [Others](#others)
+
+## Computational Resource Requirements
+
+We used two servers, each equipped with 8 A800 GPUs (each with 80GB of memory), for training MMOA-RAG. One server was dedicated to deploying the retrieval model, while the other was used for training MARL.
+
+Why is a separate machine needed to deploy the retrieval model? During the MARL training process, updates to the Query Rewriter are involved, and it is necessary to obtain Top-k documents in real-time during Rollout. This requires high real-time performance from the retrieval model. Therefore, we deployed the retrieval model on a separate machine using Faiss and leveraged GPU acceleration to ensure fast retrieval results.
 
 ## Deploying the Retrieval Model
 
@@ -18,7 +25,7 @@ The retrieval models are deployed using a specialized machine due to the multi-m
 To deploy the retrieval model, execute the following:
 
 1. Ensure the code in `./flask_server.py` is properly configured.
-2. Start the retrieval model API by running:
+2. Start the retrieval model API by running in one server:
    ```bash
    bash run_server.sh
    ```
@@ -48,7 +55,7 @@ To warm start multiple modules in the RAG system using SFT, execute:
    ```
 
 ## Multi-Agent Optimization for RAG System
-To perform joint learning of the multiple modules in the RAG system using MAPPO, run:
+To perform joint learning of the multiple modules in the RAG system using MAPPO, run the following command in another server:
    ```bash
    bash LLaMA-Factory/run_mappo.sh
    ```
