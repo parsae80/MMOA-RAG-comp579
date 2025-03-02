@@ -2,6 +2,8 @@
 
 This repository contains the code for MMOA-RAG, a system for multi-modules optimization involving Query Rewriter, Retriever, Selector and Generator. The code is organized into several components that facilitate the deployment, training, and evaluation of the RAG system.
 
+Paper: [Improving Retrieval-Augmented Generation through Multi-Agent Reinforcement Learning](https://arxiv.org/abs/2501.15228)
+
 ## Table of Contents
 
 - [Computational Resource Requirements](#computational-resource-requirements)
@@ -71,3 +73,4 @@ Create necessary directories:
 1. `./data` for storing data sets. For example, `./data/ambigqa` is used to save the AmbigQA dataset.
 
 2. `./models` for saving checkpoints of the retrieval model and LLMs.
+
