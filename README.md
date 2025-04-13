@@ -1,76 +1,107 @@
-# MMOA-RAG
+Below is a **complete** README.md that you can download or copy into your repo. Simply place this content in a file named `README.md` at the root of your project.
 
-This repository contains the code for MMOA-RAG, a system for multi-modules optimization involving Query Rewriter, Retriever, Selector and Generator. The code is organized into several components that facilitate the deployment, training, and evaluation of the RAG system.
+```markdown
+# Multi-Agent RAG with PPO
 
-Paper: [Improving Retrieval-Augmented Generation through Multi-Agent Reinforcement Learning](https://arxiv.org/abs/2501.15228)
+This repository implements a multi-agent Retrieval-Augmented Generation (RAG) system using **Proximal Policy Optimization (PPO)** on top of a pretrained LLM (e.g., Llama-3-8B-Instruct). The goal is to optimize multiple modules (e.g., Query Rewriter, Document Selector, Answer Generator) cooperatively for question-answering tasks, possibly extended to specialized domains like **financial QA**.
 
-## Table of Contents
+---
 
-- [Computational Resource Requirements](#computational-resource-requirements)
-- [Deploying the Retrieval Model](#deploying-the-retrieval-model)
-- [Getting the SFT and MAPPO Training Data](#getting-the-sft-and-mappo-training-data)
-- [Warm Start for RAG System](#warm-start-for-rag-system)
-- [Multi-Agent Optimization for RAG System](#multi-agent-optimization-for-rag-system)
-- [Evaluation](#evaluation)
-- [Others](#others)
+## Features
+1. **Supervised Fine-Tuning (SFT):** Warm-start each module (Rewriter, Selector, Generator) on domain-specific or general QA pairs.  
+2. **Multi-Agent PPO:** Jointly optimize the modules with a shared reward signal (e.g., F1 score).  
+3. **Flexible Retrieval Pipeline:** Easily integrate different document indexes (e.g., financial reports, general corpora).  
+4. **Domain-Specific Rewards and Penalties:** Optionally add specialized constraints (e.g., numeric correctness checks for financial QA).
 
-## Computational Resource Requirements
+---
 
-We used two servers, each equipped with 8 A800 GPUs (each with 80GB of memory), for training MMOA-RAG. One server was dedicated to deploying the retrieval model, while the other was used for training MARL.
+## Setup
 
-Why is a separate machine needed to deploy the retrieval model? During the MARL training process, updates to the Query Rewriter are involved, and it is necessary to obtain Top-k documents in real-time during Rollout. This requires high real-time performance from the retrieval model. Therefore, we deployed the retrieval model on a separate machine using Faiss and leveraged GPU acceleration to ensure fast retrieval results.
+### 1. Clone the Repository
+```bash
+git clone https://github.com/YourUsername/multi-agent-rag-ppo.git
+cd multi-agent-rag-ppo
+```
 
-## Deploying the Retrieval Model
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+Make sure you have a compatible GPU (e.g., A800, A100, or consumer GPU) and CUDA drivers set up.
 
-The retrieval models are deployed using a specialized machine due to the multi-modules optimization that involves the training of the Query Rewriter.
+### 3. Download or Prepare Dataset
+- **Option A (General QA)**: Prepare or download the dataset used by the original approach (e.g., 2WikiMultihopQA).  
+- **Option B (Financial QA)**: Gather your financial QA data (e.g., FinQA) and index any relevant documents (e.g., 10-K/10-Q reports).
 
-To deploy the retrieval model, execute the following:
+### 4. Configure Environment Variables or YAML Settings (Optional)
+- In `config/` or a `.env` file, specify hyperparameters, data paths, or model paths (e.g., `LLAMA_MODEL_PATH=/path/to/Llama-3-8B-Instruct`).
 
-1. Ensure the code in `./flask_server.py` is properly configured.
-2. Start the retrieval model API by running in one server:
-   ```bash
-   bash run_server.sh
-   ```
+---
 
-## Getting the SFT and MAPPO Training Data
-To generate the training data for SFT and MAPPO processes, follow these steps:
+## Usage
 
-Run the following script to obtain the SFT training data:
-   ```bash
-   python qr_s_g_sft_data_alpaca.py
-   ```
+### 1. Supervised Fine-Tuning (SFT)
+To warm-start your modules:
+```bash
+python sft_train.py \
+    --model_path ${LLAMA_MODEL_PATH} \
+    --train_file data/finqa_train.json \
+    --eval_file data/finqa_dev.json \
+    --output_dir checkpoints/sft
+```
+- **Description**: This script fine-tunes the Query Rewriter, Selector, and Generator on your domain-specific data, giving them a better initialization than random weights.
 
-Run the following script to get the MAPPO training data for each dataset:
-   ```bash
-   python get_ppo_data_alpaca.py
-   ```
+### 2. PPO Training
+Next, apply multi-agent PPO (or single-agent PPO if you choose). Example:
+```bash
+python ppo_train.py \
+    --actor_init checkpoints/sft \
+    --critic_init checkpoints/sft \
+    --train_file data/finqa_train.json \
+    --eval_file data/finqa_dev.json \
+    --reward_metric "f1" \
+    --num_steps 20000 \
+    --batch_size 4 \
+    --output_dir checkpoints/ppo
+```
+- **Key Flags**:
+  - `--actor_init`: Warm-start the Actor from the SFT checkpoint.
+  - `--critic_init`: Initialize Critic from either the same or another checkpoint.
+  - `--reward_metric`: The metric used to compute the main reward (e.g., F1).
+  - `--batch_size`: The number of rollout episodes per update (tweak for GPU memory).
 
-**We developed the code of MAPPO to joint optimizing multiple modules in RAG system based on [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory), and the core code can be seen at:**
-   ```bash
-   ./LLaMA-Factory/src/llamafactory/train/ppo/trainer_qr_s_g.py
-   ```
+### 3. Evaluation
+After training, evaluate the final policy:
+```bash
+python evaluate.py \
+    --model_path checkpoints/ppo \
+    --test_file data/finqa_test.json \
+    --output_file results/ppo_predictions.json
+```
+- **Description**: The script calculates final QA metrics (F1, exact match, etc.) and stores detailed logs.
 
-## Warm Start for RAG System
-To warm start multiple modules in the RAG system using SFT, execute:
-   ```bash
-   bash LLaMA-Factory/run_sft.sh
-   ```
+---
 
-## Multi-Agent Optimization for RAG System
-To perform joint learning of the multiple modules in the RAG system using MAPPO, run the following command in another server:
-   ```bash
-   bash LLaMA-Factory/run_mappo.sh
-   ```
+## Financial QA Adaptation
+To tailor the system specifically for financial QA:
+1. **Use a Finance-Specific Retrieval Index**: For example, chunked 10-K/10-Q documents indexed by section.  
+2. **Add Numeric Consistency Checks**: Consider penalizing the model if it references contradictory numbers.  
+3. **Domain-Specific Penalties**: Encourage the Selector to focus on relevant statements; penalize the Rewriter for removing critical financial terms (like “EPS”).
 
-## Evaluation
-Evaluate the performance of the RAG system by executing:
-   ```bash
-   CUDA_VISIBLE_DEVICES=0 python evaluate_qr_s_g.py
-   ```
+---
 
-## Others
-Create necessary directories: 
-1. `./data` for storing data sets. For example, `./data/ambigqa` is used to save the AmbigQA dataset.
+## Troubleshooting & Tips
+1. **Hardware**: PPO can be GPU-intensive. If you see out-of-memory errors, reduce `--batch_size` or switch to half precision (FP16).  
+2. **Debug Mode**: Use a tiny subset of data (e.g., 100 samples) to confirm end-to-end functionality before full training.  
+3. **Hyperparameter Tuning**: Adjust the learning rate, number of PPO epochs, or the clipping range (`--clip_range`) if training becomes unstable or converges too slowly.
 
-2. `./models` for saving checkpoints of the retrieval model and LLMs.
+---
 
+## Contact
+For issues or questions, please open a GitHub Issue or reach out to the repository maintainers.
+
+## License
+This project is licensed under the MIT License.
+```
+
+Simply copy-and-paste the above into your `README.md` file, and you’re set!
