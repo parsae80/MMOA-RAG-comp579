@@ -1,4 +1,4 @@
-Below is a **complete** README.md that you can download or copy into your repo. Simply place this content in a file named `README.md` at the root of your project.
+Below is the updated README.md file  you can download or copy into your repo.
 
 ```markdown
 # Multi-Agent RAG with PPO
@@ -95,10 +95,7 @@ To tailor the system specifically for financial QA:
 2. **Debug Mode**: Use a tiny subset of data (e.g., 100 samples) to confirm end-to-end functionality before full training.  
 3. **Hyperparameter Tuning**: Adjust the learning rate, number of PPO epochs, or the clipping range (`--clip_range`) if training becomes unstable or converges too slowly.
 
----
 
-## Contact
-For issues or questions, please open a GitHub Issue or reach out to the repository maintainers.
 
 ## License
 This project is licensed under the MIT License.
