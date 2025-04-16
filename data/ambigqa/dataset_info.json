@@ -1,0 +1,11 @@
+{
+  "alpaca": {
+    "file_name": "train.jsonl",
+    "mapping": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output"
+    }
+  }
+}
+
