@@ -3,6 +3,91 @@
 This repository contains a PPO fine-tuning setup using the [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) for a Retrieval-Augmented Generation (RAG) system focused on financial question answering (FinQA).
 
 ---
+If you dont have linux, here is the setup for you:
+## Setup
+# 🐧 Setting Up WSL + Ubuntu for LLaMA-Factory Projects
+
+This guide walks you through installing **Windows Subsystem for Linux (WSL)**, setting up **Ubuntu**, and preparing your system with **Miniconda** for Python-based machine learning projects like **LLaMA-Factory**.
+
+---
+
+## 🚀 Step 1: Install WSL and Ubuntu
+
+1. Open **PowerShell as Administrator**.
+2. Run the following command to install WSL and Ubuntu:
+
+```powershell
+wsl --install
+```
+
+This will install:
+
+WSL (Windows Subsystem for Linux)
+
+Ubuntu (default: Ubuntu 22.04)
+
+Required virtualization features
+
+Restart your system when prompted.
+
+🖥 Step 2: Launch Ubuntu
+Once your system reboots:
+
+Go to the Start Menu and search for "Ubuntu".
+
+Launch Ubuntu. On the first run:
+
+Set your Linux username and password.
+
+It will configure your environment.
+
+You are now inside the Ubuntu shell on Windows 🎉
+
+🛠 Step 3: Update Ubuntu and Install Dev Tools
+In the Ubuntu terminal:
+
+bash
+Copy
+Edit
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y git build-essential curl wget zip unzip
+This ensures your system has all necessary tools for Python and compilation.
+
+🐍 Step 4: Install Miniconda (Python Environment Manager)
+Download Miniconda:
+
+bash
+Copy
+Edit
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+Install it:
+
+bash
+Copy
+Edit
+bash Miniconda3-latest-Linux-x86_64.sh
+Follow the prompts:
+
+Accept the license.
+
+Install to the suggested path (or your preferred one).
+
+Confirm yes to initialize Conda.
+
+Activate Conda:
+
+bash
+Copy
+Edit
+source ~/.bashrc
+Create and activate your project environment:
+
+bash
+Copy
+Edit
+conda create -n rag_env python=3.10 -y
+conda activate rag_env
+You now have a Python 3.10 environment ready for your project
 
 ## 🔧 Project Setup
 
