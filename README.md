@@ -2,6 +2,20 @@
 
 This repository contains a PPO fine-tuning setup using the [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) for a Retrieval-Augmented Generation (RAG) system focused on financial question answering (FinQA).
 
+## What is special in our project:
+# Our project uses the same idea of training three agents simultaneously, just like theirs, it doesn't have any reward model, and it directly calculates the F1 score as an accuracy metric. However, unlike their project, we are trying to make the model domain specific.
+
+## How?
+# Implemeting a new reward function and novel penalties based on financial metrics.
+
+## How to Implement the code?
+# Changing the custom PPO Trainer class, is where we can focus for this project. which is here: 
+https://github.com/parsae80/MMOA-RAG-comp579/blob/main/LLaMA-Factory/src/llamafactory/train/ppo/trainer_qr_s_g.py
+
+
+## Overview of the folders Structure:
+https://github.com/parsae80/MMOA-RAG-comp579/blob/main/LLaMA-Factory/README.md#comp-579-project-readme-part
+
 ---
 If you dont have linux, here is the setup for you:
 ## Setup
