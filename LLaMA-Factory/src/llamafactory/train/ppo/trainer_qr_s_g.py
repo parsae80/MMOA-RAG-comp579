@@ -14,6 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+print("✅ Start of trainer_qr_s_g.py")
 
 import math
 import os
@@ -32,12 +33,40 @@ from transformers.trainer_callback import CallbackHandler
 from transformers.trainer_pt_utils import remove_dummy_checkpoint
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 from transformers.utils import SAFE_WEIGHTS_NAME, WEIGHTS_NAME
+#added path part
+def top_k_top_p_filtering(logits, top_k=0, top_p=1.0, filter_value=-float('Inf')):
+    logits = logits.clone()
+    if top_k > 0:
+        indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
+        logits[indices_to_remove] = filter_value
+
+    if top_p < 1.0:
+        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        cumulative_probs = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1)
+        sorted_indices_to_remove = cumulative_probs > top_p
+        sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+        sorted_indices_to_remove[..., 0] = 0
+        indices_to_remove = sorted_indices[sorted_indices_to_remove]
+        logits[indices_to_remove] = filter_value
+    return logits
+
+# Patch transformers
+import transformers
+transformers.top_k_top_p_filtering = top_k_top_p_filtering
+#
 from trl import PPOConfig, PPOTrainer
-from trl.core import PPODecorators, logprobs_from_logits
+print("📦 Imports loaded")
+
+#
+# new commented part from trl.core import PPODecorators, logprobs_from_logits
+from trl.trainer.ppo_trainer import logprobs_from_logits, PPODecorators
+
 from trl.models.utils import unwrap_model_for_generation
 from typing_extensions import override
 
+#from ...extras.logging import get_logger
 from ...extras.logging import get_logger
+
 from ...extras.misc import AverageMeter, count_parameters, get_current_device, get_logits_processor
 from ..callbacks import FixValueHeadModelCallback, SaveProcessorCallback
 from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
@@ -58,6 +87,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
 
 
+
 if TYPE_CHECKING:
     from datasets import Dataset
     from transformers import (
@@ -73,7 +103,16 @@ if TYPE_CHECKING:
 
 
 logger = get_logger(__name__)
+#edited
+import torch
+import torch.nn.functional as F
 
+def logprobs_from_logits(logits, labels):
+    logp = F.log_softmax(logits, dim=-1)
+    logpy = torch.gather(logp, dim=2, index=labels.unsqueeze(2)).squeeze(-1)
+    return logpy
+
+#edited
 def remove_punctuation(text):
     punctuation = set('.,!?;:"()[]{}-')
 
@@ -720,7 +759,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
         reward_meter = AverageMeter()
         self.callback_handler.on_train_begin(self.args, self.state, self.control)
 
-        answers_path = '/root/paddlejob/workspace/env_run/rag/data/ambigqa/train_top_k_docs.jsonl'
+        answers_path = '/home/p_esla/MMOA-RAG-comp579/data/ambigqa/top_k_train.jsonl'
         questions_golden_answers_dict = self.get_answer_dict(answers_path)
 
         # selector: allowed_tokens
@@ -856,7 +895,7 @@ class CustomPPOTrainer_QSG(PPOTrainer, Trainer):
                 
                 current_device = torch.cuda.current_device()  # getting gpu number
                 # print(current_device)
-                url = 'http://10.215.192.149:800{}/search'.format(current_device)
+                url = 'http://localhost:8000/search'.format(current_device)
                 data = {
                     'questions': questions,
                     'N': 10
