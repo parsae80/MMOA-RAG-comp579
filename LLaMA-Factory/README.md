@@ -771,7 +771,7 @@ The `src/` folder contains the core logic and interfaces used to build, serve, a
 
 ### Contents:
 
-- **`llamafactory/`**:
+- **`llamafactory/`**: 
   - Core modules for training, model definitions, data handling, configuration, and reinforcement learning integrations.
   - This is the heart of the system, where model behaviors are defined and manipulated.
 
@@ -792,6 +792,72 @@ The `src/` folder contains the core logic and interfaces used to build, serve, a
 - **`webui.py`**:
   - Provides a simple web interface using Gradio or similar for end-users to interact with the model visually.
   - Useful for testing models or running demos interactively in the browser.
+
+---
+
+## 📁 Detailed: `src/llamafactory/` Directory
+
+The `src/llamafactory/` directory contains the core components of the LLaMA-Factory framework, organized into several submodules:
+
+- **`.ipynb_checkpoints/`**: Jupyter Notebook checkpoint files for autosave and recovery.
+
+- **`__pycache__/`**: Compiled Python bytecode files for performance optimization.
+
+- **`api/`**: Defines RESTful API endpoints, enabling programmatic interaction with the model's functionalities.
+
+- **`chat/`**: Implements chat functionalities, facilitating interactive sessions with the fine-tuned models.
+
+- **`data/`**: Handles data processing tasks, including loading, preprocessing, and formatting datasets for training and evaluation.
+
+- **`eval/`**: Contains evaluation scripts and metrics to assess model performance on various tasks.
+
+- **`extras/`**: Provides additional utilities and helper functions to support training and inference workflows.
+
+- **`hparams/`**: Stores default hyperparameter configurations used during training and fine-tuning processes.
+
+- **`model/`**: Defines model architectures, including configurations for different LLaMA variants and integration with fine-tuning techniques like LoRA.
+
+- **`train/`**: Contains training routines and scripts to initiate and manage the model fine-tuning process (see more below).
+
+- **`webui/`**: Implements the web-based user interface, allowing users to interact with the model through a browser.
+
+- **`__init__.py`**: Initializes the module, allowing Python to recognize the directory as a package.
+
+- **`cli.py`**: Provides a command-line interface for executing various tasks such as training, evaluation, and inference.
+
+- **`launcher.py`**: Serves as the entry point for launching training and inference jobs, orchestrating the overall workflow.
+
+---
+
+## 📁 Detailed: `src/llamafactory/train/` Directory
+
+The `src/llamafactory/train/` directory contains the training routines and utilities essential for fine-tuning LLaMA-based models:
+
+- **`.ipynb_checkpoints/`**: Jupyter Notebook checkpoint files for autosave and recovery.
+
+- **`__pycache__/`**: Compiled Python bytecode files for performance optimization.
+
+- **`dpo/`**: Contains scripts and configurations for Direct Preference Optimization (DPO) training.
+
+- **`kto/`**: Includes modules for Knowledge Transfer Optimization (KTO) training routines.
+
+- **`ppo/`**: Holds implementations for Proximal Policy Optimization (PPO) training algorithms.
+
+- **`pt/`**: Dedicated to pre-training tasks and associated workflows.
+
+- **`rm/`**: Contains components for Reward Modeling (RM) training processes.
+
+- **`sft/`**: Encompasses scripts for Supervised Fine-Tuning (SFT) procedures.
+
+- **`__init__.py`**: Initializes the module as a Python package.
+
+- **`callbacks.py`**: Defines custom callback functions to be used during training for tasks like logging and checkpointing.
+
+- **`test_utils.py`**: Provides utility functions for testing and validation purposes.
+
+- **`trainer_utils.py`**: Offers helper functions and classes to support the training process.
+
+- **`tuner.py`**: Serves as the main entry point for initiating training workflows, orchestrating the overall fine-tuning process.
 
 ---
 
@@ -824,8 +890,14 @@ The `src/` folder contains the core logic and interfaces used to build, serve, a
 
 ---
 
+## 📄 References and Resources
 
+- **Research Paper**: [MMOA-RAG on arXiv](https://arxiv.org/abs/2501.15228)
+- **Interactive Demo**: See `webui.py` for launching an interface
+- **Colab Support**: Available through `examples/`
+- **Issues & Contributions**: Please use the GitHub issue tracker to report bugs or suggest improvements.
+
+---
 
 This README aims to help new users understand where components live and how to use them effectively within the LLaMA-Factory system for MMOA-RAG.
 
- 
