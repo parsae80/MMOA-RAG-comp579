@@ -161,7 +161,7 @@ PYTHONPATH=./src torchrun --nproc_per_node=1 src/llamafactory/launcher.py \
 https://github.com/parsae80/MMOA-RAG-comp579/blob/main/LLaMA-Factory/README.md#comp-579-project-readme-part
 
 
-### How to Implement the code?
+## How to Implement the code?
 Changing the custom PPO Trainer class, is where we can focus for this project. which is here: 
 https://github.com/parsae80/MMOA-RAG-comp579/blob/main/LLaMA-Factory/src/llamafactory/train/ppo/trainer_qr_s_g.py
 There is a get_rewards function and get_generator_punish here, where we can implement our own reward and our own penalty. 
