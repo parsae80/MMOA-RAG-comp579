@@ -721,3 +721,111 @@ This repo benefits from [PEFT](https://github.com/huggingface/peft), [TRL](https
 ## Star History
 
 ![Star History Chart](https://api.star-history.com/svg?repos=hiyouga/LLaMA-Factory&type=Date)
+
+
+
+
+
+## comp 579 Project readme part:
+# LLaMA-Factory - MMOA-RAG
+
+The `LLaMA-Factory` directory in the [MMOA-RAG](https://github.com/chenyiqun/MMOA-RAG) and its companion fork [MMOA-RAG-comp579](https://github.com/parsae80/MMOA-RAG-comp579) provides a comprehensive framework for fine-tuning and evaluating LLaMA-based large language models, especially within a Retrieval-Augmented Generation (RAG) setup enhanced by reinforcement learning.
+
+---
+
+## 🧭 Directory Structure Overview
+
+### Top-Level: `LLaMA-Factory`
+
+- **`assets/`**: Static resources including diagrams and images used in documentation.
+
+- **`docker/`**: Docker configuration files and scripts for containerizing the environment.
+
+- **`evaluation/`**: Evaluation scripts, including metric calculations and result visualizations.
+
+- **`examples/`**: Example scripts and config files for model fine-tuning and evaluation workflows.
+
+- **`scripts/`**: Helper utilities for preprocessing, orchestration, and conversion tasks.
+
+- **`src/`**: Main source code for the LLaMA-Factory system (see detailed breakdown below).
+
+- **`tests/`**: Unit and integration tests.
+
+- **`README.md`, `README_zh.md`**: Primary documentation in English and Chinese.
+
+- **`requirements.txt`**: Python dependencies.
+
+- **`setup.py`**: Setup file for package installation.
+
+- **`run.sh`**: Shell script for launching default training or evaluation workflows.
+
+- **`run_mappo.sh`**: Launches Multi-Agent Proximal Policy Optimization (MAPPO) based training.
+
+- **`run_sft.sh`**: Executes Supervised Fine-Tuning (SFT) scripts.
+
+---
+
+## 📁 Detailed: `src/` Directory
+
+The `src/` folder contains the core logic and interfaces used to build, serve, and interact with LLaMA models.
+
+### Contents:
+
+- **`llamafactory/`**:
+  - Core modules for training, model definitions, data handling, configuration, and reinforcement learning integrations.
+  - This is the heart of the system, where model behaviors are defined and manipulated.
+
+- **`llamafactory.egg-info/`**:
+  - Metadata and package configuration generated during installation; used for package distribution.
+
+- **`.ipynb_checkpoints/`**:
+  - Jupyter Notebook auto-save files for recovery of work.
+
+- **`api.py`**:
+  - Defines FastAPI or similar endpoints to expose the training/inference logic as a RESTful API.
+  - Enables programmatic access to model capabilities (e.g., sending questions and retrieving responses).
+
+- **`train.py`**:
+  - Main training script that sets up configurations, loads data, initializes the model, and begins training loops.
+  - Supports both supervised and reinforcement learning-based fine-tuning workflows.
+
+- **`webui.py`**:
+  - Provides a simple web interface using Gradio or similar for end-users to interact with the model visually.
+  - Useful for testing models or running demos interactively in the browser.
+
+---
+
+## 🚀 Getting Started
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/chenyiqun/MMOA-RAG.git
+   cd MMOA-RAG/LLaMA-Factory
+   ```
+
+2. **Install Requirements**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run Example Workflows**:
+   - MAPPO:
+     ```bash
+     bash run_mappo.sh
+     ```
+   - Supervised Fine-Tuning:
+     ```bash
+     bash run_sft.sh
+     ```
+   - Default Training:
+     ```bash
+     bash run.sh
+     ```
+
+---
+
+
+
+This README aims to help new users understand where components live and how to use them effectively within the LLaMA-Factory system for MMOA-RAG.
+
+ 
