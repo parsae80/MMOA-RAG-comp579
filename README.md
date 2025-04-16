@@ -3,9 +3,11 @@
 This repository contains a PPO fine-tuning setup using the [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) for a Retrieval-Augmented Generation (RAG) system focused on financial question answering (FinQA).
 
 ## What is special in our project:
- Our project uses the same idea of training three agents simultaneously, just like theirs, it doesn't have any reward model, and it directly calculates the F1 score as an accuracy metric. However, unlike their project, we are trying to make the model domain-specific.
+
+This project explores a Retrieval-Augmented Generation (RAG) pipeline tailored for financial question answering, combining large language models with document retrieval to enhance answer accuracy. We use a modular approach that includes query rewriting, document selection, and response generation. The model is fine-tuned using Proximal Policy Optimization (PPO) with a custom F1-based reward function, helping it improve based on direct evaluation of its answers. This setup allows for more precise and reliable answers in complex, domain-specific contexts like finance.
 
 ### How?
+
 Implemeting a new reward function and novel penalties based on financial metrics.
 
 
