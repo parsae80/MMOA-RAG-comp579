@@ -733,7 +733,7 @@ The `LLaMA-Factory` directory in the [MMOA-RAG](https://github.com/chenyiqun/MMO
 
 ---
 
-## 🧭 Directory Structure Overview
+## Directory Structure Overview
 
 ### Top-Level: `LLaMA-Factory`
 
@@ -860,42 +860,6 @@ The `src/llamafactory/train/` directory contains the training routines and utili
 - **`tuner.py`**: Serves as the main entry point for initiating training workflows, orchestrating the overall fine-tuning process.
 
 ---
-
-## 🚀 Getting Started
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/chenyiqun/MMOA-RAG.git
-   cd MMOA-RAG/LLaMA-Factory
-   ```
-
-2. **Install Requirements**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run Example Workflows**:
-   - MAPPO:
-     ```bash
-     bash run_mappo.sh
-     ```
-   - Supervised Fine-Tuning:
-     ```bash
-     bash run_sft.sh
-     ```
-   - Default Training:
-     ```bash
-     bash run.sh
-     ```
-
----
-
-## 📄 References and Resources
-
-- **Research Paper**: [MMOA-RAG on arXiv](https://arxiv.org/abs/2501.15228)
-- **Interactive Demo**: See `webui.py` for launching an interface
-- **Colab Support**: Available through `examples/`
-- **Issues & Contributions**: Please use the GitHub issue tracker to report bugs or suggest improvements.
 
 ---
 
