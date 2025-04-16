@@ -1,3 +1,4 @@
+# pip_requirements.txt (Cleaned for pip-only installation)
 accelerate==0.34.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.11.16
@@ -11,7 +12,6 @@ cycler==0.12.1
 datasets==2.20.0
 dill==0.3.8
 docstring-parser==0.16
-faiss-gpu==1.7.2
 fastchat==0.1.0
 filelock==3.18.0
 fonttools==4.57.0
@@ -66,3 +66,4 @@ tyro==0.9.18
 urllib3==2.4.0
 xxhash==3.5.0
 yarl==1.19.0
+tzdata==2025.2
