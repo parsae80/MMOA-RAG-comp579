@@ -155,12 +155,6 @@ PYTHONPATH=./src torchrun --nproc_per_node=1 src/llamafactory/launcher.py \
 
 ---
 
-## 📌 TODO
-- Replace toy dataset with full FinQA or HotpotQA-style dataset
-- Extend `get_rewards()` to cover document relevance and generator penalization
-- Use multi-GPU setup for scaling
-- Add evaluation scripts
-
 
 
 ## Overview of the folders Structure:
@@ -174,7 +168,15 @@ There is a get_rewards function and get_generator_punish here, where we can impl
 
 
 ---
+##  TODO
+- Replace toy dataset with full FinQA or HotpotQA-style dataset
+- Extend `get_rewards()` to cover document relevance and generator penalization
+- Use multi-GPU setup for scaling
+- Add evaluation scripts
 
-## 📎 References
+
+
+
+##  References
 - [LLaMA-Factory GitHub](https://github.com/hiyouga/LLaMA-Factory)
 - [TinyLLaMA Model](https://huggingface.co/cashue/tiny-llama)
