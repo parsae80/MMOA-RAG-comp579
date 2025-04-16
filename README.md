@@ -7,7 +7,15 @@ This repository contains a PPO fine-tuning setup using the [LLaMA-Factory](https
 ## 🔧 Project Setup
 
 ### ✅ Environment
-We use `conda` to manage dependencies. Below is a minimal `requirements.txt` (already generated separately) that should be installed in your virtual environment.
+
+Run the following in your terminal to setup for the project.
+
+```sh
+python3.10 -m venv venv # Python 3.10 is required as many dependencies only work with v3.10
+venv\Scripts\activate # run this for Window OS
+source venv/bin/activate # run this for Unix based OS
+pip install -r requirements.txt
+```
 
 ### ✅ Model
 - **Base Model**: [`TinyLLaMA`](https://huggingface.co/cashue/tiny-llama) (saved locally)
