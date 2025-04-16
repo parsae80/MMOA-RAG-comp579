@@ -3,6 +3,76 @@
 This repository contains a PPO fine-tuning setup using the [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) for a Retrieval-Augmented Generation (RAG) system focused on financial question answering (FinQA).
 
 ---
+## LLama factory Directory:
+Directory Structure Overview
+Here's a breakdown of the key components within the LLaMA-Factory directory:​
+
+assets/: Contains static resources such as images and diagrams used in documentation.​
+
+docker/: Includes Dockerfiles and related scripts for containerizing the environment, facilitating consistent deployment across different systems.​
+
+evaluation/: Houses scripts and tools for assessing model performance, including metrics computation and result visualization.​
+arXiv
+
+examples/: Provides sample configurations and scripts demonstrating various use cases and workflows for model fine-tuning and evaluation.​
+
+scripts/: Contains utility scripts for tasks such as data preprocessing, training orchestration, and model conversion.​
+
+src/: The core source code directory, encompassing modules for model architecture, training routines, and integration with reinforcement learning components.​
+
+tests/: Includes unit and integration tests to ensure code reliability and correctness.​
+arXiv
+
+README.md & README_zh.md: Provide comprehensive documentation in English and Chinese, respectively, detailing setup instructions, usage guidelines, and project objectives.​
+
+requirements.txt: Lists Python dependencies required to run the project.​
+
+setup.py: Facilitates package installation and distribution.​
+
+run.sh: A shell script to initiate standard training or evaluation workflows.​
+
+run_mappo.sh: Specifically designed to launch training using the Multi-Agent Proximal Policy Optimization (MAPPO) algorithm within the MMOA-RAG framework.​
+
+run_sft.sh: Used to commence supervised fine-tuning (SFT) processes.​
+
+🚀 Getting Started
+To set up and utilize the LLaMA-Factory toolkit:​
+
+Clone the Repository:
+
+bash
+Copy
+Edit
+git clone https://github.com/chenyiqun/MMOA-RAG.git
+cd MMOA-RAG/LLaMA-Factory
+Install Dependencies:
+
+bash
+Copy
+Edit
+pip install -r requirements.txt
+Run Training or Evaluation:
+
+For standard training/evaluation:
+
+bash
+Copy
+Edit
+bash run.sh
+For MAPPO-based training:
+
+bash
+Copy
+Edit
+bash run_mappo.sh
+For supervised fine-tuning:
+
+bash
+Copy
+Edit
+bash run_sft.sh
+Ensure that you have the necessary datasets and configurations in place as specified in the examples/ directory.
+
 
 ## 🔧 Project Setup
 
