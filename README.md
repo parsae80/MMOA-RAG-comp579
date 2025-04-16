@@ -11,83 +11,78 @@ This guide walks you through installing **Windows Subsystem for Linux (WSL)**, s
 
 ---
 
-## 🚀 Step 1: Install WSL and Ubuntu
+# Setting Up Ubuntu Environment on Windows (via WSL)
 
-1. Open **PowerShell as Administrator**.
-2. Run the following command to install WSL and Ubuntu:
+This guide helps you set up a working environment on Windows using Ubuntu via Windows Subsystem for Linux (WSL), suitable for development with Python, Docker, and other tools.
 
-```powershell
-wsl --install
-```
+## Step 1: Install WSL and Ubuntu
 
 This will install:
-
-WSL (Windows Subsystem for Linux)
-
-Ubuntu (default: Ubuntu 22.04)
-
-Required virtualization features
+- **WSL (Windows Subsystem for Linux)**
+- **Ubuntu** (default: Ubuntu 22.04)
+- **Required virtualization features**
 
 Restart your system when prompted.
 
-🖥 Step 2: Launch Ubuntu
+## Step 2: Launch Ubuntu
+
 Once your system reboots:
 
-Go to the Start Menu and search for "Ubuntu".
+1. Go to the Start Menu and search for **"Ubuntu"**.
+2. Launch Ubuntu.
 
-Launch Ubuntu. On the first run:
+On the first run:
 
-Set your Linux username and password.
+- Set your Linux username and password.
+- It will configure your environment.
 
-It will configure your environment.
+You are now inside the Ubuntu shell on Windows 
 
-You are now inside the Ubuntu shell on Windows 🎉
+## Step 3: Update Ubuntu and Install Dev Tools
 
-🛠 Step 3: Update Ubuntu and Install Dev Tools
-In the Ubuntu terminal:
+In the Ubuntu terminal, run:
 
-bash
-Copy
-Edit
+```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git build-essential curl wget zip unzip
+```
+
 This ensures your system has all necessary tools for Python and compilation.
 
-🐍 Step 4: Install Miniconda (Python Environment Manager)
-Download Miniconda:
+## Step 4: Install Miniconda (Python Environment Manager)
 
-bash
-Copy
-Edit
+### Download Miniconda:
+
+```bash
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-Install it:
+```
 
-bash
-Copy
-Edit
+### Install it:
+
+```bash
 bash Miniconda3-latest-Linux-x86_64.sh
+```
+
 Follow the prompts:
 
-Accept the license.
+- Accept the license.
+- Install to the suggested path (or your preferred one).
+- Confirm **yes** to initialize Conda.
 
-Install to the suggested path (or your preferred one).
+### Activate Conda:
 
-Confirm yes to initialize Conda.
-
-Activate Conda:
-
-bash
-Copy
-Edit
+```bash
 source ~/.bashrc
-Create and activate your project environment:
+```
 
-bash
-Copy
-Edit
+### Create and activate your project environment:
+
+```bash
 conda create -n rag_env python=3.10 -y
 conda activate rag_env
-You now have a Python 3.10 environment ready for your project
+```
+
+You now have a Python 3.10 environment ready for your project!
 
 ## 🔧 Project Setup
 
