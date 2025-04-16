@@ -10,9 +10,7 @@ Implemeting a new reward function and novel penalties based on financial metrics
 
 
 ---
-If you dont have linux, here is the setup for you:
-
-## Setup
+## If you dont have linux, here is the setup for you:
 # 🐧 Setting Up WSL + Ubuntu for LLaMA-Factory Projects
 
 This guide walks you through installing **Windows Subsystem for Linux (WSL)**, setting up **Ubuntu**, and preparing your system with **Miniconda** for Python-based machine learning projects like **LLaMA-Factory**.
