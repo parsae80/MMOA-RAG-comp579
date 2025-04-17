@@ -66,3 +66,5 @@ urllib3==2.4.0
 xxhash==3.5.0
 yarl==1.19.0
 tzdata==2025.2
+faiss-cpu
+
