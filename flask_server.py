@@ -103,7 +103,8 @@ if __name__ == '__main__':
     print('loading retriever model')
     # 检查GPU是否可用  
     start_time = time.time()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Using device:", device)
     # 设置PyTorch设备
     # device = torch.device("cuda:0")  # 这里的0是指CUDA_VISIBLE_DEVICES中的第一个
     retriever_tokenizer = AutoTokenizer.from_pretrained(retriever_model_path)
