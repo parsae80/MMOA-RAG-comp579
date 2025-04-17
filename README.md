@@ -40,7 +40,8 @@ Ensure Python 3.10 is installed.
 
 ```bash
 python3.10 -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate # For Window OS
+source venv/bin/activate # for unix based OS 
 ```
 
 ### 3. Install Dependencies
