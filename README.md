@@ -50,28 +50,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Install LLaMA-Factory as Editable Module
-
-```bash
-cd LLaMA-Factory
-pip install -e .
-cd ..
-```
-
-### 5. Download Contriever Model & Tokenizer
-
-Download the Contriever model locally using the Hugging Face Transformers library:
-
-```python
-from transformers import AutoTokenizer, AutoModel
-
-AutoTokenizer.from_pretrained("facebook/contriever").save_pretrained("retriever")
-AutoModel.from_pretrained("facebook/contriever").save_pretrained("retriever")
-```
-
-This will create a local `retriever/` folder with tokenizer and model files.
-
-### 6. Run Initial Scripts
+### 4. Run Initial Scripts
 
 **Step 1: Retrieve Top-k Documents**
 
