@@ -1,184 +1,333 @@
-# PPO Fine-Tuning of TinyLLaMA for Financial QA using LLaMA-Factory
+# 📄 Multi-Agent Reinforcement Learning for Financial Document Retrieval-Augmented Generation
 
-This repository contains a PPO fine-tuning setup using the [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) for a Retrieval-Augmented Generation (RAG) system focused on financial question answering (FinQA).
+This repository implements and extends the Multi-Module Joint Optimization Algorithm for Retrieval-Augmented Generation (MMOA-RAG) to the domain of **financial question answering (QA)**.  
+Inspired by [Chen et al., 2025](https://arxiv.org/abs/2501.15228), we leverage **Multi-Agent Reinforcement Learning (MARL)** to jointly optimize all RAG modules—**query rewriter**, **document selector**, and **answer generator**—under a shared reward signal.
 
-## What is special in our project:
+## 🔍 Project Highlights
 
-This project explores a Retrieval-Augmented Generation (RAG) pipeline tailored for financial question answering, combining large language models with document retrieval to enhance answer accuracy. We use a modular approach that includes query rewriting, document selection, and response generation. The model is fine-tuned using Proximal Policy Optimization (PPO) with a custom F1-based reward function, helping it improve based on direct evaluation of its answers. This setup allows for more precise and reliable answers in complex, domain-specific contexts like finance.
+- **Domain Adaptation to Finance**  
+  Applies MMOA-RAG to complex financial texts such as earnings call transcripts and SEC filings, where accurate retrieval and reasoning are critical.
 
-### How?
+- **Multi-Agent Proximal Policy Optimization (MAPPO)**  
+  Each module is treated as a cooperating agent trained via **shared reward signals** (F1 score + retrieval accuracy), enabling joint policy optimization.
 
-Implemeting a new reward function and novel penalties based on financial metrics.
+- **Ablation via Module Freezing**  
+  Investigates how individual components (e.g., query rewriting) contribute to overall performance by freezing them during training.
 
+- **Baseline Comparisons**  
+  Evaluated against:
+  - Standard RAG
+  - Single-agent PPO
 
----
-## If you dont have linux, here is the setup for you:
-## 🐧 Setting Up WSL + Ubuntu for LLaMA-Factory Projects
+## 📚 Datasets Used
 
-This guide walks you through installing **Windows Subsystem for Linux (WSL)**, setting up **Ubuntu**, and preparing your system with **Miniconda** for Python-based machine learning projects like **LLaMA-Factory**.
+- **FinQA** — 8,281 annotated QA pairs for financial reasoning  
+- **Earnings Call Transcripts** — Extracted from MarketBeat  
+- **SEC Filings** — 10-K and 10-Q reports from the EDGAR database
 
----
+## ⚙️ Project Setup (Windows)
 
-## Setting Up Ubuntu Environment on Windows (via WSL)
-
-This guide helps you set up a working environment on Windows using Ubuntu via Windows Subsystem for Linux (WSL), suitable for development with Python, Docker, and other tools.
-
-### Step 1: Install WSL and Ubuntu
-
-This will install:
-- **WSL (Windows Subsystem for Linux)**
-- **Ubuntu** (default: Ubuntu 22.04)
-- **Required virtualization features**
-
-Restart your system when prompted.
-
-### Step 2: Launch Ubuntu
-
-Once your system reboots:
-
-1. Go to the Start Menu and search for **"Ubuntu"**.
-2. Launch Ubuntu.
-
-On the first run:
-
-- Set your Linux username and password.
-- It will configure your environment.
-
-You are now inside the Ubuntu shell on Windows 
-
-### Step 3: Update Ubuntu and Install Dev Tools
-
-In the Ubuntu terminal, run:
+### 1. Clone the Repository
 
 ```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y git build-essential curl wget zip unzip
+git clone https://github.com/your-username/MMOA-RAG-financialQA.git
+cd MMOA-RAG-financialQA
 ```
 
-This ensures your system has all necessary tools for Python and compilation.
+### 2. Set Up a Python Virtual Environment
 
-### Step 4: Install Miniconda (Python Environment Manager)
-
-### Download Miniconda:
+Ensure Python 3.10 is installed.
 
 ```bash
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+python3.10 -m venv venv
+venv\Scripts\activate
 ```
 
-### Install it:
+### 3. Install Dependencies
 
 ```bash
-bash Miniconda3-latest-Linux-x86_64.sh
-```
-
-Follow the prompts:
-
-- Accept the license.
-- Install to the suggested path (or your preferred one).
-- Confirm **yes** to initialize Conda.
-
-### Activate Conda:
-
-```bash
-source ~/.bashrc
-```
-
-### Create and activate your project environment:
-
-```bash
-conda create -n rag_env python=3.10 -y
-conda activate rag_env
-```
-
-You now have a Python 3.10 environment ready for your project!
-
-## 🔧 Project Setup
-
-### ✅ Environment
-
-Run the following in your terminal to setup for the project.
-
-```sh
-python3.10 -m venv venv # Python 3.10 is required as many dependencies only work with v3.10
-venv\Scripts\activate # run this for Window OS
-source venv/bin/activate # run this for Unix based OS
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### ✅ Model
-- **Base Model**: [`TinyLLaMA`](https://huggingface.co/cashue/tiny-llama) (saved locally)
-- **Path**: `MMOA-RAG-comp579/models/tinyllama`
+### 4. Install LLaMA-Factory as Editable Module
 
-### ✅ Dataset
-A very small JSONL dataset was used to test the pipeline:
-```json
-{"instruction": "Where was Albert Einstein born?", "input": "", "output": "Ulm, Germany"}
-{"instruction": "What is the capital of Canada?", "input": "", "output": "Ottawa"}
-{"instruction": "How many moons does Mars have?", "input": "", "output": "2"}
-```
-- **Format**: Alpaca-style (`instruction`, `input`, `output`)
-- **Location**: `MMOA-RAG-comp579/data/ambigqa/train_data.jsonl`
-
-### ✅ Reward Function
-- We used a built-in `get_rewards` method using **F1-score** based on predicted vs gold answers.
-- No separate reward model was loaded (direct metric-based reward only).
-
----
-
-## 🚀 Training Run
-
-### PPO Command Used:
 ```bash
-PYTHONPATH=./src torchrun --nproc_per_node=1 src/llamafactory/launcher.py \
-  --stage ppo \
-  --do_train \
-  --model_name_or_path /MMOA-RAG-comp579/models/tinyllama \
-  --dataset ambigqa \
-  --dataset_dir /MMOA-RAG-comp579/data \
-  --template alpaca \
-  --finetuning_type full \
-  --reward_model /MMOA-RAG-comp579/models/tinyllama \
-  --reward_model_type full \
-  --output_dir /MMOA-RAG-comp579/llama-outputs/ppo_train \
-  --overwrite_cache \
-  --per_device_train_batch_size 1 \
-  --gradient_accumulation_steps 4 \
-  --lr_scheduler_type cosine \
-  --logging_steps 1 \
-  --save_steps 10 \
-  --learning_rate 5e-5 \
-  --num_train_epochs 1 \
-  --plot_loss \
-  --report_to none
+cd LLaMA-Factory
+pip install -e .
+cd ..
 ```
-> ⚠️ Note: The dataset only had 3 samples — this was just to verify that PPO fine-tuning could execute without error.
+
+### 5. Download Contriever Model & Tokenizer
+
+Download the Contriever model locally using the Hugging Face Transformers library:
+
+```python
+from transformers import AutoTokenizer, AutoModel
+
+AutoTokenizer.from_pretrained("facebook/contriever").save_pretrained("retriever")
+AutoModel.from_pretrained("facebook/contriever").save_pretrained("retriever")
+```
+
+This will create a local `retriever/` folder with tokenizer and model files.
+
+### 6. Run Initial Scripts
+
+**Step 1: Retrieve Top-k Documents**
+
+```bash
+python get_top_k.py
+```
+
+**Step 2: Format Training Data**
+
+```bash
+python qr_s_g_sft_data_alpaca.py
+python get_ppo_data_alpaca.py
+```
+
+**Step 3: Run SFT and PPO Training**
+
+```bash
+bash run_sft.sh
+bash run_mapo.sh
+```
+
+### 🧪 7. (Optional) Evaluate or Serve the Model
+
+**To Evaluate:**
+
+```bash
+python evaluate_qr_s_g.py
+```
+
+**To Serve Retrieval via Flask API:**
+
+```bash
+bash run_server.sh
+```
+
+Then query via:
+
+```
+GET /search?query=What is the EBITDA?
+```
 
 ---
 
+## 🌐 Project Architecture
+
+### 📂 Base Project Structure
+
+```plaintext
+.
+├── data/                       # Contains datasets (e.g., FinQA, SEC filings, MarketBeat), retrieval corpora, and helper scripts
+├── LLaMA-Factory/              # Core implementation of MMOA-RAG including training, evaluation, and reinforcement learning logic
+├── models/                     # Stores pretrained or fine-tuned models, tokenizer files, and generation configs
+├── venv/ *                     # Python virtual environment (auto-generated) — DO NOT MODIFY
+├── evaluate_qr_s_g.py          # Evaluates the final performance of the rewriter, selector, and generator using F1, EM, accuracy, and retrieval quality.
+├── flask_server.py             # Runs a Flask API endpoint /search to return top-k documents using FAISS + Contriever.
+├── get_ppo_data_alpaca.py      # Generates Alpaca-format PPO data for training selector and generator using reinforcement learning.
+├── get_top_k.py                # Runs FAISS-based top-k document retrieval for a dataset and saves it to *_top_k_docs.jsonl.
+├── normalize_answers.py        # Cleans and normalizes predicted and gold answers for accurate evaluation.
+├── normalize_text.py           # Handles detailed text standardization, replacing control chars, quotes, and symbols.
+├── qr_s_g_sft_data_alpaca.py   # Prepares Alpaca-style SFT data for the query rewriter, document selector, and answer generator using retrieved and rewritten documents.
+├── run_server.sh               # Launches 8 parallel Flask API servers (flask_server.py) on ports 8000–8007, each bound to a separate GPU.
+├── README.md                   # Project documentation and usage instructions
+├── requirements.txt *          # Pip-based dependency list — DO NOT MODIFY
+├── .gitignore *                # Git tracking exclusions (e.g., venv/, __pycache__) — DO NOT MODIFY
+├── environment.yml *           # Conda environment spec for setting up dependencies — DO NOT MODIFY
+
+*** All files and folders with an asterisk (*) should not be modified during the development of this project. ***
+```
+
+### 📂 Folder Structure Structure
+
+#### Data Folder
+
+```plaintext
+data/
+├── ambigqa/                    # Dataset folder with raw QA pairs, top-k documents, and format mapping for AmbigQA
+│   ├── dataset_info.json           # Field mapping for Alpaca-style training format (instruction/input/output)
+│   ├── test_data.jsonl             # QA pairs for test-time evaluation (Used by *evaluate_qr_s_g.py*.)
+│   ├── top_k_train.jsonl           # Precomputed top-k retrieved documents for each question in train.jsonl. (Used by *qr_s_g_sft_data_alpaca.py*, *get_ppo_data_alpaca.py*.)
+│   ├── train.jsonl                 # Raw training QA pairs (Used by *get_top_k.py* to retrieve documents for training, and for SFT/PPO)
+│   └── val_top_k_docs.jsonl        # Retrieved top-k documents for validation questions (Used by *evaluate_qr_s_g.py*.)
+├── psgs_w100.tsv               # Full corpus of 100-token Wikipedia passages (used as retrieval base)
+├── temp.py                     # Script to inspect alignment between FAISS vectors and text passages (optional)
+└── wikipedia.contriever        # FAISS index file (built using Contriever encoder) for fast dense retrieval
+```
+
+#### LLaMA-Factory Folder
+
+```plaintext
+LLaMA-Factory/
+├── assets/                    # Templates, prompts, and configuration files for various models
+├── docker/                    # Dockerfile and environment setup for container-based training
+├── evaluation/                # Scripts for scoring model outputs using F1, BLEU, Rouge, etc.
+├── examples/                  # Predefined examples to showcase training config usage
+├── scripts/                   # Shell scripts for preprocessing, training, evaluation (some adapted for PPO)
+├── src/                       # Core training modules: SFT, PPO, RLHF, data preprocessing, and agent logic
+├── tests/                     # Unit and integration tests
+├── README.md                  # LLaMA-Factory documentation and feature overview
+├── README_zh.md               # Chinese-language version of the README
+├── run_mapo.sh                # Shell script to run multi-agent PPO training (MAPPO)
+├── run_sft.sh                 # Shell script to run supervised fine-tuning for QR/S/G
+├── run.sh                     # Generic launcher for custom training pipelines
+├── requirements.txt           # Python dependency list for pip installs
+└── setup.py                   # Python packaging metadata for editable installs (pip install -e .)
+```
+
+#### Models Folder
+```plaintext
+models/
+└── tinyllama/
+    ├── config.json               # Model architecture & hyperparameter definitions
+    ├── eval_results.json         # Evaluation metrics after validation (F1, EM, loss, accuracy, etc.)
+    ├── generation_config.json    # Generation settings for inference (e.g., max_length, special tokens)
+    ├── README.md                 # Metadata and HuggingFace-style documentation about the pretrained TinyLLaMA model
+    ├── special_tokens_map.json   # Mapping of special tokens (e.g., <s>, </s>, <unk>) for tokenizer alignment
+    ├── tokenizer_config.json     # Tokenizer behavior, chat formatting template, max length, padding strategy
+    ├── tokenizer.json            # The actual tokenizer vocabulary, rules, and post-processing definitions
+    └── tokenizer.model           # The SentencePiece model used to tokenize input text (binary format)
+```
+
 ---
 
+## ✅ TODO
 
+### 📌 PHASE 1 — Dataset & Corpus Preparation
 
-## Overview of the folders Structure:
-https://github.com/parsae80/MMOA-RAG-comp579/blob/main/LLaMA-Factory/README.md#comp-579-project-readme-part
+#### 🔹 Step 1: Prepare QA dataset
+- [ ] Create `train.jsonl` and `test_data.jsonl`
+  - Each line should be formatted as:
+    ```json
+    {"question": "What is the net income?", "answer": "2.3 billion"}
+    ```
+  - Place these files in `data/your_dataset_name/`.
 
+#### 🔹 Step 2: Build retrieval corpus
+- [ ] Chunk your financial documents (e.g., SEC filings, earnings calls) into ~100-token passages.
+- [ ] Save the corpus in `psgs_w100.tsv` format:
+    ```tsv
+    <Title> \t <Passage Text>
+    ```
 
-## How to Implement the code?
-Changing the custom PPO Trainer class, is where we can focus for this project. which is here: 
-https://github.com/parsae80/MMOA-RAG-comp579/blob/main/LLaMA-Factory/src/llamafactory/train/ppo/trainer_qr_s_g.py
-There is a get_rewards function and get_generator_punish here, where we can implement our own reward and our own penalty. 
-
+#### 🔹 Step 3: Create FAISS index with Contriever
+- [ ] Use `facebook/contriever` to encode all passages.
+- [ ] Build a FAISS index and save it as `wikipedia.contriever`.
+- [ ] Store both `.tsv` and `.contriever` files in the `data/` directory.
 
 ---
-##  TODO
-- Replace toy dataset with full FinQA or HotpotQA-style dataset
-- Extend `get_rewards()` to cover document relevance and generator penalization
-- Use multi-GPU setup for scaling
-- Add evaluation scripts
 
+### 📌 PHASE 2 — Top-k Document Retrieval
 
+#### 🔹 Step 4: Generate top-k document lists
+- [ ] Run the following:
+    ```bash
+    python get_top_k.py
+    ```
+- [ ] This will generate:
+  - `top_k_train.jsonl`
+  - `val_top_k_docs.jsonl`
+- [ ] Store both in `data/your_dataset_name/`.
 
+---
 
-##  References
+### 📌 PHASE 3 — Supervised Fine-Tuning (SFT)
+
+#### 🔹 Step 5: Format SFT data
+- [ ] Run:
+    ```bash
+    python qr_s_g_sft_data_alpaca.py
+    ```
+- [ ] Ensure `dataset_info.json` is present to map fields to Alpaca format (`instruction`, `input`, `output`).
+
+#### 🔹 Step 6: Fine-tune modules
+- [ ] Edit and run:
+    ```bash
+    bash run_sft.sh
+    ```
+- [ ] This will fine-tune the Query Rewriter, Document Selector, and Answer Generator modules using SFT.
+
+---
+
+### 📌 PHASE 4 — PPO Training (MAPPO)
+
+#### 🔹 Step 7: Format PPO data
+- [ ] Run:
+    ```bash
+    python get_ppo_data_alpaca.py
+    ```
+
+#### 🔹 Step 8: Train with MAPPO
+- [ ] Edit and run:
+    ```bash
+    bash run_mapo.sh
+    ```
+- [ ] This trains QR, Selector, and Generator **jointly** using Multi-Agent PPO and a shared reward signal.
+
+---
+
+### 📌 PHASE 5 — Model Evaluation
+
+#### 🔹 Step 9: Evaluate performance
+- [ ] Run:
+    ```bash
+    python evaluate_qr_s_g.py
+    ```
+- [ ] Input files:
+  - `val_top_k_docs.jsonl`
+  - `test_data.jsonl`
+- [ ] Output: Model predictions, F1 score, Exact Match (EM), and accuracy.
+
+---
+
+### 📌 PHASE 6 — Module Freezing & Ablation (Optional)
+
+#### 🔹 Step 10: Run ablation studies
+- [ ] Freeze the Query Rewriter → measure impact on retrieval and generation.
+- [ ] Freeze the Document Selector → use random docs and measure degradation.
+- [ ] Compare overall model behavior with and without specific modules.
+
+---
+
+### 📌 PHASE 7 — Interactive Flask API (Optional)
+
+#### 🔹 Step 11: Launch document search server
+- [ ] Run:
+    ```bash
+    bash run_server.sh
+    ```
+- [ ] Query the API endpoint:
+    ```
+    GET /search?query=What is the EBITDA?
+    ```
+
+---
+
+### ✅ Summary Pipeline
+
+```plaintext
+Raw QA + Financial Docs
+   ↓
+psgs_w100.tsv + wikipedia.contriever
+   ↓
+get_top_k.py → top_k_train.jsonl + val_top_k_docs.jsonl
+   ↓
+qr_s_g_sft_data_alpaca.py → SFT dataset → run_sft.sh
+   ↓
+get_ppo_data_alpaca.py → PPO dataset → run_mapo.sh
+   ↓
+evaluate_qr_s_g.py → final results
+```
+
+---
+
+## 🧠 Reference
+
+Chen, Y., Yan, L., Sun, W., Ma, X., Zhang, Y., Wang, S., Yin, D., & Yang, Y. (2025).  
+*Improving Retrieval-Augmented Generation through Multi-Agent Reinforcement Learning.*  
+arXiv preprint: [arXiv:2501.15228](https://arxiv.org/abs/2501.15228)
 - [LLaMA-Factory GitHub](https://github.com/hiyouga/LLaMA-Factory)
 - [TinyLLaMA Model](https://huggingface.co/cashue/tiny-llama)
