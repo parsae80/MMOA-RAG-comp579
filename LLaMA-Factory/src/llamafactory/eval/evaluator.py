@@ -1,4 +1,4 @@
-# Copyright 2024 the LlamaFactory team.
+# Copyright 2025 the LlamaFactory team.
 #
 # This code is inspired by the Dan's test library.
 # https://github.com/hendrycks/test/blob/master/evaluate_flan.py
@@ -39,7 +39,7 @@
 
 import json
 import os
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import numpy as np
 import torch
@@ -52,14 +52,23 @@ from ..extras.constants import CHOICES, SUBJECTS
 from ..hparams import get_eval_args
 from ..model import load_model, load_tokenizer
 from .template import get_eval_template
-
+import re
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
+def numeric_em(pred: str, gold: str, eps: float = 1e-6) -> float:
+    """Return 1.0 iff the numeric values match within 1e-6, else 0.0."""
+    def extract(x: str) -> float | None:
+        m = re.search(r"-?[\d,.]*\d", x)           # crude but robust
+        return None if m is None else float(m.group().replace(",", ""))
+    p, g = extract(pred), extract(gold)
+    if p is None or g is None:
+        return 0.0
+    return float(abs(p - g) <= eps * max(1.0, abs(g)))
 
 class Evaluator:
-    def __init__(self, args: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, args: Optional[dict[str, Any]] = None) -> None:
         self.model_args, self.data_args, self.eval_args, finetuning_args = get_eval_args(args)
         self.tokenizer = load_tokenizer(self.model_args)["tokenizer"]
         self.tokenizer.padding_side = "right"  # avoid overflow issue in batched inference for llama2
@@ -69,7 +78,7 @@ class Evaluator:
         self.choice_inputs = [self.tokenizer.encode(ch, add_special_tokens=False)[-1] for ch in CHOICES]
 
     @torch.inference_mode()
-    def batch_inference(self, batch_input: Dict[str, "torch.Tensor"]) -> List[str]:
+    def batch_inference(self, batch_input: dict[str, "torch.Tensor"]) -> list[str]:
         logits = self.model(**batch_input).logits
         lengths = torch.sum(batch_input["attention_mask"], dim=-1)
         word_probs = torch.stack([logits[i, lengths[i] - 1] for i in range(len(lengths))], dim=0)
@@ -87,8 +96,8 @@ class Evaluator:
             token=self.model_args.hf_hub_token,
         )
 
-        with open(mapping, "r", encoding="utf-8") as f:
-            categorys: Dict[str, Dict[str, str]] = json.load(f)
+        with open(mapping, encoding="utf-8") as f:
+            categorys: dict[str, dict[str, str]] = json.load(f)
 
         category_corrects = {subj: np.array([], dtype="bool") for subj in SUBJECTS}
         pbar = tqdm(categorys.keys(), desc="Processing subjects", position=0)
@@ -100,7 +109,7 @@ class Evaluator:
                 cache_dir=self.model_args.cache_dir,
                 download_mode=self.eval_args.download_mode,
                 token=self.model_args.hf_hub_token,
-                trust_remote_code=True,
+                trust_remote_code=self.model_args.trust_remote_code,
             )
             pbar.set_postfix_str(categorys[subject]["name"])
             inputs, outputs, labels = [], [], []
@@ -128,18 +137,38 @@ class Evaluator:
                 outputs += preds
 
             corrects = np.array(outputs) == np.array(labels)
+            # ----- compute extra metric for this subject -----
+            numem = [numeric_em(p, g) for p, g in zip(outputs, labels)]
+            # store subject-level score
+            if "numeric_em" not in results:
+                results["numeric_em"] = {}
+            results["numeric_em"][subject] = float(np.mean(numem))
+            # keep running list for a global score
+            if "_numem_all" not in locals():
+                _numem_all = []
+            _numem_all.extend(numem)
+            # -------------------------------------------------
+
             category_name = categorys[subject]["category"]
             category_corrects[category_name] = np.concatenate([category_corrects[category_name], corrects], axis=0)
             category_corrects["Average"] = np.concatenate([category_corrects["Average"], corrects], axis=0)
             results[subject] = {str(i): outputs[i] for i in range(len(outputs))}
 
         pbar.close()
+        
+        # ───── NEW GLOBAL METRIC ───────────────────────────────────
+        average_numem = np.mean(_numem_all) if "_numem_all" in locals() else float("nan")
+        print(f"Numeric-EM (overall): {100*average_numem:.2f}")
+        # optionally log it alongside the other scores
+        results["overall_numeric_em"] = average_numem
+        # ───────────────────────────────────────────────────────────
+
         self._save_results(category_corrects, results)
 
-    def _save_results(self, category_corrects: Dict[str, "NDArray"], results: Dict[str, Dict[int, str]]) -> None:
+    def _save_results(self, category_corrects: dict[str, "NDArray"], results: dict[str, dict[int, str]]) -> None:
         score_info = "\n".join(
             [
-                "{:>15}: {:.2f}".format(category_name, 100 * np.mean(category_correct))
+                f"{category_name:>15}: {100 * np.mean(category_correct):.2f}"
                 for category_name, category_correct in category_corrects.items()
                 if len(category_correct)
             ]
