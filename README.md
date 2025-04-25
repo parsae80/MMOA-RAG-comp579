@@ -1,7 +1,7 @@
 # 📄 Multi-Agent Reinforcement Learning for Financial Document Retrieval-Augmented Generation
 
 This repository implements and extends the Multi-Module Joint Optimization Algorithm for Retrieval-Augmented Generation (MMOA-RAG) to the domain of **financial question answering (QA)**.  
-Inspired by [Chen et al., 2025](https://arxiv.org/abs/2501.15228), we leverage **Multi-Agent Reinforcement Learning (MARL)** to jointly optimize Generation module under a shared reward signal.
+Inspired by [Chen et al., 2025](https://arxiv.org/abs/2501.15228), we leverage **Multi-Agent Reinforcement Learning (MARL)** to optimize Generation module under a shared reward signal.
 
 ## 🔍 Project Highlights
 
