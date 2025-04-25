@@ -6,10 +6,11 @@ Inspired by [Chen et al., 2025](https://arxiv.org/abs/2501.15228), we leverage *
 ## 🔍 Project Highlights
 
 - **Domain Adaptation to Finance**  
-  Applies MMOA-RAG to complex financial texts such as finQA, where accurate retrieval and reasoning are critical.
+  Adapts the MMOA-RAG framework to FinQA and other financial reports, where numerical precision and evidence faithfulness are paramount.
 
-- **Multi-Agent Proximal Policy Optimization (MAPPO)**  
-  Each module is treated as a cooperating agent trained via **shared reward signals** (F1 score + retrieval accuracy), enabling joint policy optimization.
+- **Custom PPO with domain-aware rewards**
+  Keeps the retriever frozen and fine-tunes the generator via Proximal Policy Optimisation using a finance-tailored reward (relative-numeric-error + brevity penalty),     
+  delivering materially higher answer accuracy than a vanilla F₁ baseline.
 
 ## 📚 Datasets Used
 
