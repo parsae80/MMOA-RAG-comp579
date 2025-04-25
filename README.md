@@ -11,10 +11,6 @@ Inspired by [Chen et al., 2025](https://arxiv.org/abs/2501.15228), we leverage *
 - **Multi-Agent Proximal Policy Optimization (MAPPO)**  
   Each module is treated as a cooperating agent trained via **shared reward signals** (F1 score + retrieval accuracy), enabling joint policy optimization.
 
-- **Baseline Comparisons**  
-  Evaluated against:
-  - Single-agent PPO
-
 ## 📚 Datasets Used
 
 - **FinQA** — 8,281 annotated QA pairs for financial reasoning  
