@@ -6,17 +6,13 @@ Inspired by [Chen et al., 2025](https://arxiv.org/abs/2501.15228), we leverage *
 ## 🔍 Project Highlights
 
 - **Domain Adaptation to Finance**  
-  Applies MMOA-RAG to complex financial texts such as earnings call transcripts and SEC filings, where accurate retrieval and reasoning are critical.
+  Applies MMOA-RAG to complex financial texts such as finQA, where accurate retrieval and reasoning are critical.
 
 - **Multi-Agent Proximal Policy Optimization (MAPPO)**  
   Each module is treated as a cooperating agent trained via **shared reward signals** (F1 score + retrieval accuracy), enabling joint policy optimization.
 
-- **Ablation via Module Freezing**  
-  Investigates how individual components (e.g., query rewriting) contribute to overall performance by freezing them during training.
-
 - **Baseline Comparisons**  
   Evaluated against:
-  - Standard RAG
   - Single-agent PPO
 
 ## 📚 Datasets Used
