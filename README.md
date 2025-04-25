@@ -21,7 +21,7 @@ Inspired by [Chen et al., 2025](https://arxiv.org/abs/2501.15228), we leverage *
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/MMOA-RAG-financialQA.git
+git clone [https://github.com/parsae80/MMOA-RAG-comp579.git]
 cd MMOA-RAG-financialQA
 ```
 
